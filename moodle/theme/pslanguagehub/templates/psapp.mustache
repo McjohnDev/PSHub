@@ -1,0 +1,156 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template theme_pslanguagehub/psapp
+
+    The signed-in shell: sidebar, top bar, page. One template for all three
+    spaces - learner, teacher, administration - because they are the same
+    furniture with different doors on it. The layout file decides the nav, the
+    role label, whether there is a search box and what sits top right; nothing
+    here knows which space it is drawing.
+
+    Built to the approved screens (docs/design/screens-v2/, 03, 04 and 07).
+    No block regions, no drawers, no edit-mode toggle: staff who need Moodle's
+    own interface open Moodle, which is what the note at the foot of the
+    sidebar says (AC-17, §12.1).
+
+    The sidebar is plain links and the search is a GET form, so the whole shell
+    works with scripting off (AC-20).
+
+    Context variables required for this template:
+    * output - Standard Moodle output object.
+    * bodyattributes - From core_renderer::body_attributes.
+    * homeurl, logouturl - strings.
+    * navlabel - The heading over the nav ("MAIN MENU", "TEACHER SPACE"…).
+    * nav - [{url, label, iconsvg, current}]
+    * fullname, initials, rolelabel - the person, for the sidebar card.
+    * hassearch, searchaction, searchplaceholder - the top-bar search, or none.
+    * topactions - [{url, label, primary}] buttons at the top right, or none.
+    * sidenote - {title, text} the note at the foot of the sidebar, or none.
+
+    Example context (json):
+    {
+        "output": {"main_content": "<h1>Page</h1>"},
+        "bodyattributes": "class=\"ps-app\"",
+        "homeurl": "/local/pshub/learn/index.php",
+        "logouturl": "/login/logout.php?sesskey=x",
+        "navlabel": "MAIN MENU",
+        "nav": [{"url": "#", "label": "My progress", "iconsvg": "<svg/>", "current": true}],
+        "fullname": "Amina Mbarga",
+        "initials": "AM",
+        "rolelabel": "Learner",
+        "hassearch": true,
+        "searchaction": "/local/pshub/catalogue.php",
+        "searchplaceholder": "Search for a course…",
+        "topactions": [],
+        "sidenote": false
+    }
+}}
+{{> theme_boost/head }}
+
+<body {{{ bodyattributes }}}>
+{{> core/local/toast/wrapper}}
+
+{{{ output.standard_top_of_body_html }}}
+
+<a class="ps-skip visually-hidden-focusable" href="#region-main">{{#str}}skipmain, theme_pslanguagehub{{/str}}</a>
+
+<div class="ps-app__frame">
+
+    <aside class="ps-side">
+        <a class="ps-side__brand" href="{{homeurl}}">
+            {{> theme_pslanguagehub/brandmark }}
+            <span class="ps-side__brandtext">
+                <span class="ps-side__brandname">{{#str}}pluginname, theme_pslanguagehub{{/str}}</span>
+                <span class="ps-side__brandtag">
+                    <span class="ps-learn">{{#str}}tagline_learn, theme_pslanguagehub{{/str}}</span>
+                    <span class="ps-speak">{{#str}}tagline_speak, theme_pslanguagehub{{/str}}</span>
+                    <span class="ps-succeed">{{#str}}tagline_succeed, theme_pslanguagehub{{/str}}</span>
+                </span>
+            </span>
+        </a>
+
+        <div class="ps-side__user">
+            <span class="ps-side__avatar" aria-hidden="true">{{initials}}</span>
+            <span class="ps-side__who">
+                <span class="ps-side__name">{{fullname}}</span>
+                <span class="ps-side__role">{{rolelabel}}</span>
+            </span>
+        </div>
+
+        <nav class="ps-side__nav" aria-label="{{#str}}nav_main, theme_pslanguagehub{{/str}}">
+            <span class="ps-side__navlabel">{{navlabel}}</span>
+            {{#nav}}
+                <a class="ps-side__link {{#current}}ps-side__link--on{{/current}}" href="{{url}}"
+                   {{#current}}aria-current="page"{{/current}}>
+                    {{! Decorative: the label beside it says the same thing. }}
+                    <span class="ps-side__icon" aria-hidden="true">{{{iconsvg}}}</span>
+                    {{label}}
+                </a>
+            {{/nav}}
+        </nav>
+
+        {{#sidenote}}
+            {{!
+                Staff are told once, in the place they will look, that the
+                detailed work happens in Moodle - rather than hunting for a
+                feature this portal deliberately does not carry.
+            }}
+            <div class="ps-side__note">
+                <span class="ps-side__notetitle">{{title}}</span>
+                <span class="ps-side__notetext">{{text}}</span>
+            </div>
+        {{/sidenote}}
+
+        {{!
+            Account links, under the navigation rather than in it: these are
+            places somebody goes once, not places they work.
+        }}
+        <div class="ps-side__account">
+            <a class="ps-side__accountlink" href="{{notificationsurl}}">{{#str}}nav_notifications, theme_pslanguagehub{{/str}}</a>
+            <a class="ps-side__logout" href="{{logouturl}}">{{#str}}nav_logout, theme_pslanguagehub{{/str}}</a>
+        </div>
+    </aside>
+
+    <div class="ps-app__body">
+
+        <header class="ps-topbar">
+            {{#hassearch}}
+                <form class="ps-topbar__search" method="get" action="{{searchaction}}">
+                    <label class="ps-search__label" for="ps-app-q">{{#str}}filter_search, local_pshub{{/str}}</label>
+                    <input class="ps-topbar__input" type="search" id="ps-app-q" name="q"
+                           placeholder="{{searchplaceholder}}">
+                </form>
+            {{/hassearch}}
+
+            {{#topactions}}
+                <a class="ps-btn {{#primary}}ps-btn--navy{{/primary}}{{^primary}}ps-btn--ghost{{/primary}} ps-topbar__action"
+                   href="{{url}}">{{label}}</a>
+            {{/topactions}}
+        </header>
+
+        <main id="region-main" class="ps-app__main">
+            {{{ output.main_content }}}
+        </main>
+
+    </div>
+</div>
+
+{{{ output.standard_after_main_region_html }}}
+{{{ output.standard_end_of_body_html }}}
+</body>
+</html>

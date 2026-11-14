@@ -1,0 +1,247 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_pshub/home
+
+    The public home page.
+
+    Every claim on this page is one the platform actually keeps: 50-minute live
+    sessions, Mobile Money, audio-only fallback, QR-verifiable certificates.
+    Nothing here is aspirational copy, because a visitor on a 2G connection in
+    Douala will find out within a week whether it was true, and the app links
+    say "coming soon" for exactly that reason (they land in S12).
+
+    The FAQ uses <details>, so it opens and closes with no JavaScript at all
+    (AC-20).
+
+    Context variables required for this template:
+    * featured - Array of course-card contexts, see catalogue_service::present().
+    * hasfeatured - bool, false when nothing is published yet.
+    * catalogueurl - The catalogue.
+    * signupurl - Moodle's signup form.
+
+    Example context (json):
+    {
+        "hasfeatured": true,
+        "catalogueurl": "/local/pshub/catalogue.php",
+        "signupurl": "/login/signup.php",
+        "featured": []
+    }
+}}
+
+{{! -- Hero ------------------------------------------------------------- }}
+<section class="ps-hero">
+    <div class="ps-hero__inner">
+
+        <div class="ps-hero__copy">
+            <span class="ps-hero__rule" aria-hidden="true"></span>
+            <p class="ps-hero__devise">
+                <span class="ps-learn">{{#str}}tagline_learn, theme_pslanguagehub{{/str}}</span>
+                <span class="ps-speak">{{#str}}tagline_speak, theme_pslanguagehub{{/str}}</span>
+                <span class="ps-succeed">{{#str}}tagline_succeed, theme_pslanguagehub{{/str}}</span>
+            </p>
+
+            <h1 class="ps-hero__title">{{#str}}home_hero_title, local_pshub{{/str}}</h1>
+            <p class="ps-hero__lede">{{#str}}home_hero_lede, local_pshub{{/str}}</p>
+
+            <p class="ps-hero__actions">
+                <a class="ps-btn ps-btn--white" href="{{catalogueurl}}">{{#str}}home_hero_cta, local_pshub{{/str}}</a>
+                <a class="ps-btn ps-btn--ghost" href="#fonctionnement">{{#str}}nav_howitworks, theme_pslanguagehub{{/str}}</a>
+            </p>
+
+            <p class="ps-hero__pills">
+                <span class="ps-pill">{{#str}}home_pill_live, local_pshub{{/str}}</span>
+                <span class="ps-pill">{{#str}}home_pill_momo, local_pshub{{/str}}</span>
+                <span class="ps-pill">{{#str}}home_pill_certificate, local_pshub{{/str}}</span>
+            </p>
+        </div>
+
+        {{!
+            An illustration of a live session, not a live session. It is marked
+            aria-hidden and contains no links: it exists to show what the
+            product looks like from the inside, and a screen reader reading out
+            a fake timer would be worse than useless.
+        }}
+        <div class="ps-demo" aria-hidden="true">
+            <div class="ps-demo__head">
+                <span class="ps-demo__course">{{#str}}home_demo_course, local_pshub{{/str}}</span>
+                <span class="ps-demo__live"><span class="ps-demo__dot"></span>{{#str}}home_demo_live, local_pshub{{/str}}</span>
+            </div>
+            <div class="ps-demo__tiles">
+                <span class="ps-demo__tile ps-demo__tile--teacher">{{#str}}home_demo_teacher, local_pshub{{/str}}</span>
+                <span class="ps-demo__tile ps-demo__tile--you">{{#str}}home_demo_you, local_pshub{{/str}}</span>
+            </div>
+            <div class="ps-demo__board">
+                <span class="ps-demo__phrase">{{#str}}home_demo_phrase, local_pshub{{/str}}</span>
+                <span class="ps-demo__variants">{{#str}}home_demo_variants, local_pshub{{/str}}</span>
+                <span class="ps-demo__boardlabel">{{#str}}home_demo_board, local_pshub{{/str}}</span>
+            </div>
+            <div class="ps-demo__foot">
+                <span class="ps-demo__timer">38:12 <span>/ 50:00</span></span>
+                <span class="ps-demo__join">{{#str}}home_demo_join, local_pshub{{/str}}</span>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+{{! -- Featured ---------------------------------------------------------- }}
+<section class="ps-section ps-featured">
+    <div class="ps-section__inner">
+
+        <div class="ps-section__head">
+            <div>
+                <h2 class="ps-section__title">{{#str}}home_featured_title, local_pshub{{/str}}</h2>
+                <p class="ps-section__lede">{{#str}}home_featured_lede, local_pshub{{/str}}</p>
+            </div>
+            <a class="ps-section__more" href="{{catalogueurl}}">{{#str}}home_featured_all, local_pshub{{/str}}</a>
+        </div>
+
+        {{#hasfeatured}}
+            <div class="ps-course-grid">
+                {{#featured}}
+                    {{> local_pshub/course_card }}
+                {{/featured}}
+            </div>
+        {{/hasfeatured}}
+        {{^hasfeatured}}
+            <p class="ps-empty">{{#str}}catalogue_empty, local_pshub{{/str}}</p>
+        {{/hasfeatured}}
+
+    </div>
+</section>
+
+{{! -- How it works ------------------------------------------------------ }}
+<section class="ps-section ps-steps" id="fonctionnement">
+    <div class="ps-section__inner">
+        <h2 class="ps-section__title">{{#str}}home_steps_title, local_pshub{{/str}}</h2>
+
+        <ol class="ps-steps__list">
+            <li class="ps-step">
+                <span class="ps-step__number">1</span>
+                <span class="ps-step__body">
+                    <span class="ps-step__title">{{#str}}home_step1_title, local_pshub{{/str}}</span>
+                    <span class="ps-step__text">{{#str}}home_step1_text, local_pshub{{/str}}</span>
+                </span>
+            </li>
+            <li class="ps-step">
+                <span class="ps-step__number">2</span>
+                <span class="ps-step__body">
+                    <span class="ps-step__title">{{#str}}home_step2_title, local_pshub{{/str}}</span>
+                    <span class="ps-step__text">{{#str}}home_step2_text, local_pshub{{/str}}</span>
+                </span>
+            </li>
+            <li class="ps-step">
+                <span class="ps-step__number">3</span>
+                <span class="ps-step__body">
+                    <span class="ps-step__title">{{#str}}home_step3_title, local_pshub{{/str}}</span>
+                    <span class="ps-step__text">{{#str}}home_step3_text, local_pshub{{/str}}</span>
+                </span>
+            </li>
+        </ol>
+    </div>
+</section>
+
+{{! -- Built for the network --------------------------------------------- }}
+<section class="ps-section ps-network" id="reseaux">
+    <div class="ps-section__inner">
+        <h2 class="ps-section__title">{{#str}}home_network_title, local_pshub{{/str}}</h2>
+        <p class="ps-section__lede">{{#str}}home_network_lede, local_pshub{{/str}}</p>
+
+        <div class="ps-network__grid">
+            <div class="ps-network__card">
+                <h3>{{#str}}home_network_audio_title, local_pshub{{/str}}</h3>
+                <p>{{#str}}home_network_audio_text, local_pshub{{/str}}</p>
+            </div>
+            <div class="ps-network__card">
+                <h3>{{#str}}home_network_board_title, local_pshub{{/str}}</h3>
+                <p>{{#str}}home_network_board_text, local_pshub{{/str}}</p>
+            </div>
+            <div class="ps-network__card">
+                <h3>{{#str}}home_network_reconnect_title, local_pshub{{/str}}</h3>
+                <p>{{#str}}home_network_reconnect_text, local_pshub{{/str}}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{! -- App and certificates ---------------------------------------------- }}
+<section class="ps-section ps-app" id="app">
+    <div class="ps-section__inner ps-app__grid">
+
+        <div>
+            <h2 class="ps-section__title">{{#str}}home_app_title, local_pshub{{/str}}</h2>
+            <ul class="ps-app__points">
+                <li>{{#str}}home_app_point_size, local_pshub{{/str}}</li>
+                <li>{{#str}}home_app_point_offline, local_pshub{{/str}}</li>
+                <li>{{#str}}home_app_point_reminders, local_pshub{{/str}}</li>
+            </ul>
+            {{!
+                Placeholders until the app ships in S12. They are spans rather
+                than links because a store link that goes nowhere is a broken
+                promise on the page that makes the first promise.
+            }}
+            <p class="ps-app__stores">
+                <span class="ps-store">{{#str}}app_google_soon, theme_pslanguagehub{{/str}}</span>
+                <span class="ps-store">{{#str}}app_apple_soon, theme_pslanguagehub{{/str}}</span>
+            </p>
+        </div>
+
+        <div class="ps-app__aside">
+            <div class="ps-panel">
+                <span class="ps-panel__flare" aria-hidden="true"></span>
+                <h3 class="ps-panel__title">{{#str}}home_certificate_title, local_pshub{{/str}}</h3>
+                <p class="ps-panel__text">{{#str}}home_certificate_text, local_pshub{{/str}}</p>
+            </div>
+            <div class="ps-panel ps-panel--quiet">
+                <h3 class="ps-panel__title">{{#str}}home_teachers_title, local_pshub{{/str}}</h3>
+                <p class="ps-panel__text">{{#str}}home_teachers_text, local_pshub{{/str}}</p>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+{{! -- FAQ ---------------------------------------------------------------- }}
+<section class="ps-section ps-faq" id="faq">
+    <div class="ps-section__inner">
+        <h2 class="ps-section__title">{{#str}}home_faq_title, local_pshub{{/str}}</h2>
+
+        <div class="ps-faq__list">
+            <details class="ps-faq__item">
+                <summary>{{#str}}home_faq_q_live, local_pshub{{/str}}</summary>
+                <p>{{#str}}home_faq_a_live, local_pshub{{/str}}</p>
+            </details>
+            <details class="ps-faq__item">
+                <summary>{{#str}}home_faq_q_pay, local_pshub{{/str}}</summary>
+                <p>{{#str}}home_faq_a_pay, local_pshub{{/str}}</p>
+            </details>
+            <details class="ps-faq__item">
+                <summary>{{#str}}home_faq_q_missed, local_pshub{{/str}}</summary>
+                <p>{{#str}}home_faq_a_missed, local_pshub{{/str}}</p>
+            </details>
+            <details class="ps-faq__item">
+                <summary>{{#str}}home_faq_q_data, local_pshub{{/str}}</summary>
+                <p>{{#str}}home_faq_a_data, local_pshub{{/str}}</p>
+            </details>
+        </div>
+
+        <p class="ps-faq__cta">
+            <a class="ps-btn ps-btn--navy" href="{{signupurl}}">{{#str}}home_faq_cta, local_pshub{{/str}}</a>
+        </p>
+    </div>
+</section>

@@ -1,0 +1,821 @@
+// PS Language Hub - component styles, appended after Bootstrap.
+//
+// Kept deliberately small. Every rule here is a rule that has to survive a
+// Moodle upgrade, so anything Bootstrap can be told to do via a variable is
+// done in pre.scss instead.
+
+// The signature gradient, four stops, matching the logo ribbon exactly.
+$ps-signature: linear-gradient(135deg,
+    #2E6FE6 0%, #E8336F 30%, #F7941D 68%, #FBC02D 100%);
+
+// The same four stops laid out horizontally, for the rule under the brand
+// band. One gradient, two directions - not two gradients.
+$ps-signature-x: linear-gradient(90deg,
+    #2E6FE6 0%, #E8336F 30%, #F7941D 68%, #FBC02D 100%);
+
+// -- Brand hairline -----------------------------------------------------------
+// The only decorative use of the gradient. At the very top of the page it
+// reads as brand; anywhere else it would read as "a class is live".
+body::before {
+    content: "";
+    display: block;
+    height: 3px;
+    background: $ps-signature;
+}
+
+// -- Login --------------------------------------------------------------------
+//
+// A card that crosses the seam between the brand and the page.
+//
+// The navy ground carries the brand and the one sentence worth saying to
+// someone who has not signed up yet. The card sits beside it and hangs BELOW
+// the navy onto white, so it reads as an object lying on the page rather than
+// a panel drawn inside another panel. That overlap is the whole composition:
+// it is what makes the page look composed rather than stacked, and it costs a
+// negative margin.
+//
+// Boost's own layout is replaced in core/login_layout because its brand half
+// is `d-none d-lg-flex` - invisible to anyone on a phone, or on a laptop at a
+// normal window size, which is most of this product's users.
+//
+// Everything here is width-agnostic: the same composition at 360px and 1920px.
+//
+// Note what is NOT here any more: rules undoing Boost's `.login-layout-left`
+// photograph and its "AI-generated image" watermark. That element does not
+// exist in our layout, so there is nothing to undo. (For whoever hits the same
+// confusion those rules came from: when a theme change appears not to reach
+// the browser, check the theme revision before suspecting the minifier -
+// purge_caches.php does NOT bump themerev, so styles.php happily keeps serving
+// the old stylesheet. Use theme_reset_all_caches().)
+
+body.pagelayout-login {
+    background: #fff;
+
+    // Moodle floats a round "?" button bottom-right that opens a popover with
+    // the footer in it: "not logged in", a data-privacy link, nothing a person
+    // arriving to sign in needs. It is the only thing on this page that is not
+    // part of signing in, so it goes.
+    #page-footer {
+        display: none;
+    }
+
+    // The band is the brand statement on this page and it starts at the very
+    // top edge. The gradient appears once, under the band, where it separates
+    // navy from white - so the page-top hairline would be a second, competing
+    // line 200px above it.
+    &::before {
+        content: none;
+    }
+}
+
+$ps-login-gutter: clamp(1.5rem, 4.5vw, 4.5rem);
+
+// Two columns: the brand and what it is selling on the left, the form on the
+// right. Boost splits the page the same way and then marks its left half
+// `d-none d-lg-flex`, hiding it below 992px - which on this product meant most
+// visitors met a bare form. Here the panel becomes a header instead of
+// disappearing (see the narrow rules at the end of this file).
+.ps-login {
+    min-height: 100dvh;
+    display: grid;
+    // 40% of the window, as the approved screen has it, but never wider than
+    // 38rem: past that the headline stops being a column of text and becomes a
+    // stripe of it.
+    grid-template-columns: minmax(0, clamp(22rem, 40%, 38rem)) minmax(0, 1fr);
+}
+
+// -- The brand panel ----------------------------------------------------------
+
+.ps-login__aside {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(1.75rem, 4vh, 3.25rem) $ps-login-gutter;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+
+    // A spotlight rather than a flat ground: it gives the panel depth for one
+    // gradient - no image, no request, nothing to load on a 2G connection.
+    background:
+        radial-gradient(48rem 40rem at 18% 28%, rgba(31, 111, 224, .28), transparent 62%),
+        $ps-navy;
+
+    // The arc in the corner, from the approved screen. A single hairline ring,
+    // clipped by the panel, at an opacity that reads as texture rather than as
+    // a shape anyone has to look at.
+    &::after {
+        content: "";
+        position: absolute;
+        left: -24rem;
+        bottom: -20rem;
+        width: 44rem;
+        height: 44rem;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, .07);
+        pointer-events: none;
+    }
+}
+
+.ps-login__brandrow {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.ps-login__mark {
+    width: 44px;
+    height: 44px;
+    flex: none;
+}
+
+// The hairline between the mark and the devise. It is what stops two
+// unrelated brand elements from reading as one crowded lockup.
+.ps-login__rule {
+    width: 1px;
+    height: 32px;
+    background: rgba(255, 255, 255, .22);
+}
+
+.ps-login__devise {
+    margin: 0;
+    display: flex;
+    gap: .4rem;
+    font-family: $headings-font-family;
+    font-weight: 800;
+    font-size: .6875rem;
+    letter-spacing: .14em;
+
+    // Each colour clears AA on the navy ground: blue 7.0:1, pink 5.1:1,
+    // orange 7.6:1.
+    .ps-learn   { color: #5BA3FF; }
+    .ps-speak   { color: #F05A8B; }
+    .ps-succeed { color: #F7941D; }
+}
+
+.ps-login__devise--foot {
+    position: relative;
+    font-size: .75rem;
+}
+
+.ps-login__pitch {
+    position: relative;
+}
+
+.ps-login__headline {
+    margin: 0;
+    max-width: 16ch;
+    font-size: clamp(1.75rem, 2.6vw, 2.25rem);
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: -.02em;
+    color: #fff;
+}
+
+.ps-login__accent {
+    display: block;
+    width: 72px;
+    height: 4px;
+    margin: 1.25rem 0;
+    border-radius: 2px;
+    background: $ps-signature-x;
+}
+
+.ps-login__lede {
+    margin: 0;
+    max-width: 34ch;
+    font-size: .9375rem;
+    line-height: 1.6;
+    color: #A9BCE0;
+}
+
+// The payment line on the signup panel. Quieter than the lede: it answers the
+// question someone asks halfway through a signup form, not the one that
+// brought them to the page.
+.ps-login__note {
+    margin: 1.5rem 0 0;
+    max-width: 34ch;
+    font-size: .875rem;
+    line-height: 1.55;
+    color: #8FA6D4;
+}
+
+.ps-login__features {
+    margin: 2rem 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 1rem;
+
+    li {
+        display: flex;
+        align-items: center;
+        gap: .875rem;
+        font-size: .9375rem;
+        font-weight: 600;
+        line-height: 1.35;
+        color: #E6EDFA;
+    }
+}
+
+.ps-login__ficon {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, .08);
+    color: #5BA3FF;
+
+    svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+// -- The form panel -----------------------------------------------------------
+
+.ps-login__panel {
+    background: #fff;
+    padding: clamp(1.75rem, 4vh, 3rem) clamp(1.5rem, 5vw, 5rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.ps-login__form {
+    width: 100%;
+    // 432px: wide enough for the long French field labels, narrow enough to
+    // stay one column of attention.
+    max-width: 27rem;
+    margin-inline: auto;
+
+    // A rare, deliberate page - seen once a session at most - so a short
+    // entrance is justified where it would be noise on a dashboard. It rises
+    // rather than scaling up from nothing, on a strong ease-out so the
+    // movement is over while the eye is still arriving.
+    @media (prefers-reduced-motion: no-preference) {
+        animation: ps-login-rise 320ms cubic-bezier(.23, 1, .32, 1) both;
+    }
+}
+
+@keyframes ps-login-rise {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+// -- Signup -------------------------------------------------------------------
+//
+// Moodle renders signup as an mform, so none of the login form's markup
+// applies: fields arrive as .fitem rows with their labels in a column that
+// Bootstrap's grid would put beside the input. This is the whole of what it
+// takes to make them read like the fields on the login page - labels above,
+// full-width controls, one primary action.
+//
+// The FORM is core's. It carries the password policy, the e-mail confirmation
+// flow, reCAPTCHA where enabled and the site policy checkbox, and none of that
+// is worth reimplementing for a visual change.
+#page-login-signup .ps-login__form {
+
+    // mform's own heading block, which repeats the page title.
+    .mform .fcontainer > .fitem,
+    .mform fieldset {
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+
+    // Each field becomes label-on-top, full width. The row/col classes are
+    // Bootstrap utilities with !important, so they are neutralised by display
+    // rather than fought over property by property.
+    .mform .fitem {
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    .mform .fitem .col-md-3,
+    .mform .fitem .col-md-9 {
+        width: 100%;
+        max-width: none;
+        flex: none;
+        padding-inline: 0;
+        text-align: start;
+    }
+
+    .mform label {
+        font-weight: 600;
+        font-size: .9375rem;
+        color: $ps-navy;
+        margin-bottom: .375rem;
+    }
+
+    .mform input[type="text"],
+    .mform input[type="email"],
+    .mform input[type="password"],
+    .mform select {
+        width: 100%;
+        min-height: 52px;
+        padding: .75rem 1rem;
+        border: 1px solid #CFE0F5;
+        border-radius: 12px;
+        background: $login-input-bg;
+        font-size: .9375rem;
+        color: $ps-navy;
+
+        &:focus {
+            outline: 0;
+            border-color: $ps-blue-700;
+            box-shadow: 0 0 0 3px rgba($ps-blue-700, .18);
+        }
+    }
+
+    // Moodle emits the fields in the order the form was declared, which puts
+    // the password policy - five lines of it - above the password box it
+    // describes, and before the field has even been introduced. Flex ordering
+    // moves it under the password without touching the form.
+    //
+    // Everything unlisted sits at 10: a site policy checkbox or a captcha,
+    // neither of which we control, lands after the named fields and before the
+    // buttons rather than jumping to the top.
+    // The flex context goes on the FORM itself. Moodle's signup form has no
+    // .fcontainer wrapper - the field rows are direct children of .mform - and
+    // ordering only works on the real parent.
+    .mform {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mform > .fitem { order: 10; }
+
+    #fitem_id_username { order: 1; }
+    #fitem_id_password { order: 2; }
+    #fitem_id_passwordpolicyinfo { order: 3; }
+    #fitem_id_email { order: 4; }
+    #fitem_id_email2 { order: 5; }
+    #fitem_id_firstname { order: 7; }
+    #fitem_id_lastname { order: 8; }
+    #fitem_id_city { order: 9; }
+    #fitem_id_country { order: 10; }
+    #fgroup_id_buttonar { order: 20; }
+
+    // Custom profile fields - the phone number - arrive in their own
+    // collapsible fieldset, appended after everything else. The fieldset IS a
+    // direct child of the form, so it can be ordered even though its field
+    // cannot: it goes with the contact details, where someone filling the form
+    // expects a phone number to be asked for.
+    // `fieldset.fitem` and not `fieldset`: Moodle puts BOTH classes on this
+    // element, so the generic `.fitem { order: 10 }` above carries more
+    // classes than a bare element selector would and wins. Matching the class
+    // as well settles it.
+    .mform > fieldset.fitem {
+        order: 6;
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+
+    // The category header row. It cannot be hidden - Bootstrap writes
+    // `.d-flex { display: flex !important }` and this theme does not answer
+    // !important with !important - so instead it is made to read as what it
+    // is: a section label above the field it introduces. The category is named
+    // "Contact" (see db/upgrade.php), which is why that now makes sense.
+    .mform > fieldset > .d-flex {
+        margin-bottom: .375rem;
+
+        h3 {
+            font-family: $font-family-sans-serif;
+            font-size: .9375rem;
+            font-weight: 600;
+            color: $ps-navy;
+        }
+
+        // The collapse chevron needs JavaScript to do anything, and the
+        // section is open by default - so only the control goes, not the
+        // heading. Moodle wraps BOTH in .ftoggler, and collapsing that took
+        // the word "Contact" with it, leaving a labelled field with no label.
+        //
+        // Collapsed out of the line rather than hidden with `display`, because
+        // Bootstrap marks these elements `d-flex` with !important and this
+        // theme does not answer !important with !important.
+        .ftoggler > a[data-bs-toggle="collapse"] {
+            visibility: hidden;
+            width: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+    }
+
+    // The policy itself: information a person reads once, sized accordingly.
+    #fitem_id_passwordpolicyinfo {
+        margin-top: -.5rem;
+        font-size: .8125rem;
+        line-height: 1.5;
+        color: #55648C;
+    }
+
+    // The submit row: primary action full width, cancel as a quiet link under
+    // it rather than a second button competing with it.
+    #fgroup_id_buttonar {
+        margin-top: 1.5rem;
+
+        .btn-primary {
+            width: 100%;
+            min-height: 52px;
+            border-radius: 12px;
+            font-family: $headings-font-family;
+            font-weight: 700;
+            font-size: 1.0625rem;
+        }
+
+        .btn-secondary {
+            width: 100%;
+            margin-top: .625rem;
+            background: none;
+            border: 0;
+            color: $ps-blue-900;
+            font-weight: 600;
+        }
+    }
+
+    // Password policy and field help: information, not noise.
+    .form-text,
+    .felement .text-muted {
+        font-size: .8125rem;
+        color: #55648C;
+    }
+}
+
+// A signup form is taller than a login form, and centring a tall form in a
+// short window pushes its first field off the top. Sign-up starts at the top
+// and scrolls; sign-in stays centred.
+#page-login-signup .ps-login__panel {
+    justify-content: flex-start;
+}
+
+.ps-login__panelfoot {
+    width: 100%;
+    max-width: 27rem;
+    margin: 2rem auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-size: .8125rem;
+    color: #7B8AB0;
+
+    a {
+        color: $ps-blue-900;
+        font-weight: 500;
+    }
+}
+
+// core/loginform is NOT overridden. Only its presentation is touched, and the
+// field internals - icon position, text inset, reveal button - are left to
+// Boost, which styles them through `.login-container .login-form`. That class
+// is on the wrapper in our layout for exactly this reason.
+.ps-login {
+
+    // The language menu and the cookie notice are the last two children of
+    // .loginform and belong on one line, under a rule. A two-column grid puts
+    // them there without touching core's markup: everything else spans both
+    // columns and stacks as before.
+    //
+    // Both are pinned to an explicit row far below anything core emits, so
+    // they share a row whatever else the form renders above them - an error
+    // alert, a signup line, identity providers, a guest button. Empty rows
+    // have no height, so the number costs nothing.
+    //
+    // `justify-self` rather than `justify-content` is deliberate. Core marks
+    // the language menu `d-flex justify-content-center`, and Bootstrap writes
+    // its utilities with !important, so its internal centring cannot be
+    // overridden from here without one. Sizing the ITEM to its content
+    // sidesteps that argument entirely: there is no spare room left to centre
+    // anything in.
+    .loginform {
+        display: grid;
+        grid-template-columns: 1fr auto;
+
+        // Core gives the language menu `my-5`, with !important, so its 2rem
+        // bottom margin cannot be overridden - only cancelled from outside.
+        // Without this the card ends in 52px of empty white, which is what
+        // pushed the page past the bottom of a 768px laptop screen.
+        margin-bottom: -1.25rem;
+
+        > * {
+            grid-column: 1 / -1;
+        }
+
+        > .login-languagemenu {
+            grid-column: 1;
+            grid-row: 50;
+            justify-self: start;
+            align-self: center;
+        }
+
+        > .login-cookiesnotice {
+            grid-column: 2;
+            grid-row: 50;
+            justify-self: end;
+            align-self: center;
+        }
+
+        // The rule above that row: a grid item of its own, zero height,
+        // spanning both columns. Drawing it once means it cannot arrive as
+        // two segments at two different heights, which is what separate
+        // border-tops gave - core's `my-5` on the language menu and our own
+        // margin on the cookie notice are not the same number.
+        &::after {
+            content: "";
+            grid-column: 1 / -1;
+            grid-row: 50;
+            align-self: start;
+            border-top: 1px solid #E2EAF7;
+        }
+    }
+
+    // Air above the rule. The form's own bottom margin is what separates the
+    // sign-in button from the footer line.
+    .login-form {
+        margin-bottom: 1rem;
+    }
+
+    // Smaller than it looks it should be. The big type on this page belongs to
+    // the promise on the navy, and a 38px heading inside a 480px card wraps
+    // onto two lines and shouts at someone who has already decided to sign in.
+    h1,
+    .h2 {
+        font-size: clamp(1.5rem, 2.6vw, 1.75rem);
+        font-weight: 800;
+        line-height: 1.15;
+        letter-spacing: -.015em;
+        color: $ps-navy;
+        margin-bottom: .375rem;
+    }
+
+    p.text-muted {
+        font-size: 1.0625rem;
+        color: #55648C;
+        margin-bottom: 1rem;
+    }
+
+    // The brand already sits in the band above; a second logo inside the form
+    // is one too many.
+    #loginlogo {
+        display: none;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: .9375rem;
+        color: $ps-navy;
+        margin-bottom: .375rem;
+    }
+
+    // Block padding ONLY. Boost sets `padding-inline-start: 3rem` so the icon
+    // inside the field clears the text, and the `padding` shorthand silently
+    // resets it - which is exactly how the icon once ended up sitting on top
+    // of the placeholder.
+    .login-input-wrapper .form-control {
+        padding-block: .875rem;
+        // 15px, matching the fields in the approved design. It also buys back
+        // a few characters of the very long French placeholder.
+        font-size: .9375rem;
+
+        // Core's placeholder is a whole sentence - "Saisir votre nom
+        // d'utilisateur ou votre adresse de courriel" - and no field width
+        // fits it. Ellipsis rather than a hard cut mid-word: the label above
+        // already says what the field is, so the placeholder only has to
+        // trail off tidily instead of looking broken.
+        text-overflow: ellipsis;
+        border-color: #CFE0F5;
+        border-radius: 12px;
+
+        &:focus {
+            border-color: $ps-blue-700;
+            box-shadow: 0 0 0 3px rgba($ps-blue-700, .18);
+        }
+    }
+
+    // Why a login field needs to be told it is full width at all.
+    //
+    // YUI's cssbase, which Moodle still loads on every page, carries
+    // `input[type="text"], input[type="password"] { width: 12.25em }`. That
+    // is one class plus one type selector, so it outranks Bootstrap's
+    // `.form-control { width: 100% }` and the field comes out 196px wide in a
+    // 440px column. It arrives with YUI's own stylesheet, injected by
+    // JavaScript, so the server-rendered page looks correct and only the
+    // browser disagrees.
+    //
+    // The CHILD combinator is what makes this safe. Once Moodle's JavaScript
+    // adds the password reveal button, the password input is no longer a
+    // direct child of .login-input-wrapper - it sits inside a Bootstrap
+    // .input-group, which sizes it with `width: 1%; flex: 1 1 auto`. A
+    // descendant selector here would overwrite that with 100% and wrap the
+    // button onto its own line, which is precisely the bug this file has
+    // already fixed once.
+    .login-input-wrapper > .form-control {
+        width: 100%;
+    }
+
+    // The icons belong to the interaction, so they are blue, not grey. Boost
+    // sets them grey from `.login-container .login-form .login-input-wrapper
+    // .login-input-icon`, so this has to be at least as specific to be heard.
+    .login-container .login-form .login-input-wrapper .login-input-icon {
+        color: $ps-blue-900;
+    }
+
+    // Stretch the WRAPPER, never the input. The password field's reveal button
+    // is injected by JavaScript into a Bootstrap .input-group, and that group
+    // sizes its input with `width: 1%; flex: 1 1 auto`. Forcing the input to
+    // 100% wraps the button onto its own line and drops the lock icon between
+    // the two.
+    .login-input-wrapper {
+        width: 100%;
+    }
+
+    // Same story as the icons: Boost colours this button from a four-class
+    // selector, so matching it is the price of changing it.
+    .login-container .login-form .toggle-sensitive-wrapper .toggle-sensitive-btn {
+        border-color: #CFE0F5;
+        border-start-end-radius: 12px;
+        border-end-end-radius: 12px;
+        color: $ps-blue-900;
+    }
+
+    .login-form-username,
+    .login-form-password {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    // Forgot password. An affordance, so blue, and underlined because it sits
+    // alone on its line with nothing else to mark it as a link.
+    .text-end a {
+        font-weight: 600;
+        color: $ps-blue-900;
+        text-decoration: underline;
+    }
+
+    // Primary action. Navy carries weight that blue does not; blue stays the
+    // interaction colour, which is why the focus ring is blue even here.
+    .btn-primary {
+        width: 100%;
+        padding-block: 1rem;
+        border-radius: 12px;
+        font-family: $headings-font-family;
+        font-weight: 700;
+        font-size: 1.0625rem;
+    }
+
+    // Press feedback, everywhere. The one piece of motion worth having on a
+    // slow connection: it confirms the tap landed before the network answers.
+    .btn {
+        transition:
+            transform 160ms cubic-bezier(.23, 1, .32, 1),
+            background-color 200ms ease,
+            border-color 200ms ease;
+
+        &:active {
+            transform: scale(.97);
+        }
+    }
+
+    a {
+        color: $ps-blue-700;
+    }
+
+    // -- The footer line ------------------------------------------------------
+
+    // Core gives the language menu `my-5`; matching it on the cookie notice
+    // keeps both items balanced in the row, so they centre on the same line
+    // whatever that spacer is worth.
+    .login-cookiesnotice {
+        margin-block: 2rem;
+    }
+
+    .login-languagemenu {
+        // Shaped like the control it behaves as. Moodle renders it as a link
+        // with a caret; a bordered box is what tells a visitor it can be
+        // changed.
+        .dropdown-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .55rem .85rem;
+            border: 1px solid #CFE0F5;
+            border-radius: 10px;
+            background: #fff;
+            color: $ps-navy;
+            font-weight: 500;
+            text-decoration: none;
+
+            &:hover,
+            &:focus {
+                border-color: $ps-blue-300;
+            }
+        }
+
+        .dropdown-menu {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        // WITHOUT THIS, CHANGING LANGUAGE NEEDS JAVASCRIPT.
+        //
+        // Moodle renders the language menu as a Bootstrap dropdown: the links
+        // are in the page, but `.dropdown-menu { display: none }` hides them
+        // until JavaScript adds `.show`. With scripting off - or simply
+        // failing on a bad connection - a visitor cannot switch to English or
+        // to French at all, on the one page where they have not yet chosen
+        // anything. That is an AC-20 failure, and on a French-first product
+        // for a bilingual market it is not a small one.
+        //
+        // Hover AND focus-within, so it opens for a mouse, for a keyboard, and
+        // for a tap (which gives focus). When JavaScript does load, Bootstrap
+        // toggles `.show` as usual and this rule simply never disagrees with
+        // it.
+        .dropdown:hover > .dropdown-menu,
+        .dropdown:focus-within > .dropdown-menu {
+            display: block;
+        }
+    }
+
+    .login-cookiesnotice {
+        justify-content: flex-end;
+
+        .btn-link {
+            color: $ps-blue-900;
+            font-weight: 500;
+            text-decoration: underline;
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ps-login .btn:active { transform: none; }
+}
+
+// -- Narrow ------------------------------------------------------------------
+// The panel stops being a column and becomes a header: brand, headline, the
+// three things this product promises, then the form beneath. Nothing is
+// hidden. The promise is the only thing on this page that says what the
+// product is, and phones are where most of this market reads it.
+@media (max-width: 61.9375em) {
+    .ps-login {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .ps-login__aside {
+        padding-block: 1.5rem 2rem;
+        gap: 1.5rem;
+
+        // The arc belongs to a tall panel. In a short header it would sit
+        // across the text.
+        &::after {
+            content: none;
+        }
+    }
+
+    // Repeated at the foot of a full-height panel it reads as a signature; at
+    // the bottom of a header it is just the same line twice, 200px apart.
+    .ps-login__devise--foot {
+        display: none;
+    }
+
+    .ps-login__headline {
+        max-width: none;
+        font-size: 1.625rem;
+    }
+
+    .ps-login__features {
+        margin-top: 1.5rem;
+    }
+
+    .ps-login__panel {
+        padding-block: 2rem;
+    }
+}
+
+@media (max-width: 47.9375em) {
+    .ps-login__accent {
+        margin-block: 1rem;
+    }
+
+    // One line each rather than an icon grid: at 390px the tiles cost more
+    // width than they earn.
+    .ps-login__features li {
+        font-size: .875rem;
+    }
+
+    .ps-login__ficon {
+        width: 34px;
+        height: 34px;
+
+        svg { width: 17px; height: 17px; }
+    }
+}

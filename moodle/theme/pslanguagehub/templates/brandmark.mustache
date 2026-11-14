@@ -1,0 +1,36 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template theme_pslanguagehub/brandmark
+
+    The small brand mark used in the navigation bar and the footer.
+
+    Two letters on the signature gradient rather than the full logo: at 38px
+    the drawing inside the logo is mud, and this is a tile of CSS instead of an
+    image request. The full mark is kept for the login page, where it is large
+    enough to read.
+
+    Marked aria-hidden because it always sits beside the name in text - a
+    screen reader would otherwise announce the brand twice.
+
+    Context variables required for this template:
+    * none
+
+    Example context (json):
+    {}
+}}
+<span class="ps-mark" aria-hidden="true">PS</span>

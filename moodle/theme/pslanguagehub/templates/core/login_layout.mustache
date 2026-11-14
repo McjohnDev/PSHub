@@ -1,0 +1,173 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template theme_pslanguagehub/core/login_layout
+
+    The login and signup pages: brand on the left, form on the right.
+
+    Built to the approved screen (docs/design/screens-v2/08-login.png). The
+    same layout serves signup, because Moodle renders both through this layout
+    and the only thing that changes is the form in the right-hand column.
+
+    WHY THIS REPLACES BOOST'S LAYOUT
+    Boost splits the page the same way but marks its left half
+    `d-none d-lg-flex` - hidden below 992px. On a mobile-first product for a
+    mobile-first market that left most visitors with a bare form and no brand.
+    Here the left panel becomes a compact header on a narrow screen instead of
+    disappearing.
+
+    WHAT THIS TEMPLATE DELIBERATELY KEEPS
+    `.login-container`, because Boost styles the fields through
+    `.login-container .login-form` - the icon inside the field, the 3rem inset
+    that clears it, the reveal button. An earlier version dropped that class
+    and the icon landed on top of the placeholder.
+
+    The FORM is core's, untouched: CSRF token, password policy, lockout
+    handling, error rendering. Three things the approved screen shows are
+    therefore not here, and each is recorded in
+    docs/design/IMPLEMENTATION-MAP.md: signing in with a phone number (Moodle
+    authenticates a username), a "remember me" checkbox (a site setting in
+    Moodle, not a form control), and "Afficher" as a word instead of the eye
+    icon (core injects the icon by JavaScript).
+
+    Context variables required for this template:
+    * output - Standard Moodle output object; output.main_content holds the
+      rendered form.
+
+    Example context (json):
+    {
+        "output": {
+            "main_content": "<h1>Login form goes here</h1>"
+        }
+    }
+}}
+<div id="page-content" class="ps-login">
+
+    <aside class="ps-login__aside">
+
+        <div class="ps-login__brandrow">
+            {{! Inline SVG: one fewer request, and sharp at any size. }}
+            <svg viewBox="0 0 512 512" class="ps-login__mark" role="img"
+                 aria-label="{{#str}}pluginname, theme_pslanguagehub{{/str}}">
+                <defs>
+                    <linearGradient id="psribbon" x1="0.15" y1="0" x2="0.85" y2="1">
+                        <stop offset="0%" stop-color="#2E6FE6"/>
+                        <stop offset="30%" stop-color="#E8336F"/>
+                        <stop offset="68%" stop-color="#F7941D"/>
+                        <stop offset="100%" stop-color="#FBC02D"/>
+                    </linearGradient>
+                    <radialGradient id="psglobe" cx="38%" cy="34%" r="72%">
+                        <stop offset="0%" stop-color="#5BA3FF"/>
+                        <stop offset="60%" stop-color="#1F6FE0"/>
+                        <stop offset="100%" stop-color="#0B3FA0"/>
+                    </radialGradient>
+                </defs>
+                <path d="M 358 150 C 286 138 262 214 318 240 C 380 268 378 332 316 352 C 280 363 250 352 244 328"
+                      fill="none" stroke="url(#psribbon)" stroke-width="60"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="356" cy="148" r="56" fill="url(#psglobe)"/>
+                <path fill-rule="evenodd" fill="#FFFFFF"
+                      d="M 150 150 H 250 C 322 150 322 264 250 264 H 206 V 404 H 150 Z M 244 178 a 30 30 0 1 0 0.1 0 Z"/>
+                <path fill="#FFFFFF" d="M 150 352 L 116 420 L 180 392 Z"/>
+                <g fill="#FFFFFF">
+                    <circle cx="280" cy="318" r="10"/>
+                    <circle cx="312" cy="318" r="10"/>
+                    <circle cx="344" cy="318" r="10"/>
+                </g>
+            </svg>
+            <span class="ps-login__rule" aria-hidden="true"></span>
+            <p class="ps-login__devise">
+                <span class="ps-learn">{{#str}}tagline_learn, theme_pslanguagehub{{/str}}</span>
+                <span class="ps-speak">{{#str}}tagline_speak, theme_pslanguagehub{{/str}}</span>
+                <span class="ps-succeed">{{#str}}tagline_succeed, theme_pslanguagehub{{/str}}</span>
+            </p>
+        </div>
+
+        <div class="ps-login__pitch">
+            {{!
+                Someone signing up is being asked for something; someone
+                signing in is coming back. The panel says the matching thing.
+                `issignup` comes from layout/login.php, which reads the
+                pagetype - the template itself cannot know which page it is on.
+            }}
+            {{#issignup}}
+                <h2 class="ps-login__headline">{{#str}}signup_headline, theme_pslanguagehub{{/str}}</h2>
+                <span class="ps-login__accent" aria-hidden="true"></span>
+                <p class="ps-login__lede">{{#str}}signup_lede, theme_pslanguagehub{{/str}}</p>
+                <p class="ps-login__note">{{#str}}signup_payment_note, theme_pslanguagehub{{/str}}</p>
+            {{/issignup}}
+            {{^issignup}}
+                <h2 class="ps-login__headline">{{#str}}login_headline, theme_pslanguagehub{{/str}}</h2>
+                <span class="ps-login__accent" aria-hidden="true"></span>
+                <p class="ps-login__lede">{{#str}}login_lede, theme_pslanguagehub{{/str}}</p>
+
+            <ul class="ps-login__features">
+                <li>
+                    <span class="ps-login__ficon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 7l-7 5 7 5V7z"/>
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                        </svg>
+                    </span>
+                    <span>{{#str}}login_point_live, theme_pslanguagehub{{/str}}</span>
+                </li>
+                <li>
+                    <span class="ps-login__ficon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+                            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+                            <line x1="12" y1="20" x2="12.01" y2="20"/>
+                        </svg>
+                    </span>
+                    <span>{{#str}}login_point_bandwidth, theme_pslanguagehub{{/str}}</span>
+                </li>
+                <li>
+                    <span class="ps-login__ficon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="8" r="6"/>
+                            <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+                        </svg>
+                    </span>
+                    <span>{{#str}}login_point_xp, theme_pslanguagehub{{/str}}</span>
+                </li>
+            </ul>
+            {{/issignup}}
+        </div>
+
+        <p class="ps-login__devise ps-login__devise--foot">
+            <span class="ps-learn">{{#str}}tagline_learn, theme_pslanguagehub{{/str}}</span>
+            <span class="ps-speak">{{#str}}tagline_speak, theme_pslanguagehub{{/str}}</span>
+            <span class="ps-succeed">{{#str}}tagline_succeed, theme_pslanguagehub{{/str}}</span>
+        </p>
+
+    </aside>
+
+    <main class="ps-login__panel" id="region-main">
+        <div class="login-container ps-login__form">
+            {{{ output.main_content }}}
+        </div>
+
+        <div class="ps-login__panelfoot">
+            <span>{{#str}}foot_copyright, theme_pslanguagehub, {{year}}{{/str}}</span>
+            <a href="{{config.wwwroot}}/local/pshub/index.php">{{#str}}login_back_home, theme_pslanguagehub{{/str}}</a>
+        </div>
+    </main>
+
+</div>

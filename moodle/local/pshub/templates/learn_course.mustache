@@ -1,0 +1,220 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_pshub/learn_course
+
+    A course as the learner who takes it sees it: the stage, what the course
+    is, what it contains, and the live sessions beside it.
+
+    WHAT THE APPROVED SCREEN SHOWS THAT THIS DOES NOT
+    A rating out of five with a review count: nothing records reviews, and a
+    4,8 nobody left is a lie printed beside a price. A play button on the
+    stage: a session is joined through its BigBlueButton room, so the button
+    appears when a room exists and a session is live, and not before. The
+    "audio only available" note: that is a promise about a server that is not
+    provisioned yet (PSH-S01-02), and this page will make it when it is true.
+
+    THE TABS ARE ANCHORS. A tab here is a link to a heading further down the
+    page - which needs no scripting, keeps the back button working and can be
+    shared (AC-20). Only sections that exist get one.
+
+    THREE GRID CHILDREN, NOT TWO. The head, the sessions and the content are
+    separate so that a phone can read them in the order that matters - what
+    this course is, when the next class is, then the material - while a desktop
+    keeps the sessions in the right-hand column of the approved screen.
+
+    Context variables required for this template:
+    * course - A presented course, see catalogue_service::present().
+    * crumburl, crumblabel, crumbhere - The breadcrumb.
+    * durationlabel - "50 min maximum par séance".
+    * meta - [{text}] The line under the title. Each part is a recorded fact.
+    * hasmeta, teacherpending - bool
+    * tabs - [{label, anchor}]
+    * groups - [{key, label, count, items: [{name, url, hasurl}]}]
+    * hasgroups - bool
+    * sessions - [{title, when, duration, state, statelabel, url}]
+    * hassessions, islive - bool
+    * livesession - {joinurl} when one can be joined right now.
+    * progress - {percent, percentlabel, sessionlabel} or false.
+
+    Example context (json):
+    {
+        "course": {"fullname": "Anglais A2", "langplate": "EN", "cardtone": 2,
+                   "hasimage": false, "summary": "<p>Vingt séances.</p>"},
+        "crumburl": "/local/pshub/learn/index.php",
+        "crumblabel": "Mes cours", "crumbhere": "Détail du cours",
+        "durationlabel": "50 min maximum par séance",
+        "meta": [{"text": "Niveau A2"}], "hasmeta": true, "teacherpending": true,
+        "tabs": [{"label": "À propos de ce cours", "anchor": "ps-about"}],
+        "groups": [], "hasgroups": false,
+        "sessions": [], "hassessions": false, "islive": false,
+        "progress": false
+    }
+}}
+<div class="ps-page ps-coursepage">
+
+    <nav class="ps-crumb" aria-label="{{crumblabel}}">
+        <a class="ps-crumb__link" href="{{crumburl}}">{{crumblabel}}</a>
+        <span class="ps-crumb__sep" aria-hidden="true">/</span>
+        <span class="ps-crumb__here">{{crumbhere}}</span>
+    </nav>
+
+    <div class="ps-coursepage__grid">
+
+        <div class="ps-coursepage__head">
+
+            {{!
+                The stage. The course image when one was uploaded, the language
+                on a brand ground when none was - the same rule as the cards,
+                so a course looks like itself everywhere.
+            }}
+            <div class="ps-stage ps-stage--tone{{course.cardtone}}">
+                {{#course.hasimage}}
+                    <img class="ps-stage__image" src="{{course.imageurl}}" alt=""
+                         decoding="async">
+                {{/course.hasimage}}
+                {{^course.hasimage}}
+                    <span class="ps-stage__plate" aria-hidden="true">{{course.langplate}}</span>
+                {{/course.hasimage}}
+
+                {{#islive}}
+                    <span class="ps-stage__live">{{#str}}learn_live_now, local_pshub{{/str}}</span>
+                {{/islive}}
+                <span class="ps-stage__chip">{{durationlabel}}</span>
+            </div>
+
+            <div class="ps-coursepage__badges">
+                <span class="ps-chip ps-chip--lang">{{course.langplate}}</span>
+                {{#course.topbadge}}
+                    <span class="ps-badge ps-badge--{{style}}">{{label}}</span>
+                {{/course.topbadge}}
+            </div>
+
+            <h1 class="ps-coursepage__title">{{course.fullname}}</h1>
+
+            {{#hasmeta}}
+                <ul class="ps-coursemeta">
+                    {{#meta}}<li class="ps-coursemeta__item">{{text}}</li>{{/meta}}
+                </ul>
+            {{/hasmeta}}
+            {{#teacherpending}}
+                {{!
+                    Said plainly rather than left blank: a learner who has paid
+                    for a course is owed the fact that the teacher is not named
+                    yet, not a line that quietly skips it.
+                }}
+                <p class="ps-coursepage__pending">{{#str}}learn_course_teacher_pending, local_pshub{{/str}}</p>
+            {{/teacherpending}}
+
+            <nav class="ps-tabs" aria-label="{{#str}}learn_course_content, local_pshub{{/str}}">
+                {{#tabs}}
+                    <a class="ps-tab" href="#{{anchor}}">{{label}}</a>
+                {{/tabs}}
+            </nav>
+
+        </div>
+
+        <aside class="ps-coursepage__aside">
+
+            {{#progress}}
+                <section class="ps-side-card">
+                    <h2 class="ps-side-card__title">{{#str}}learn_progress_title, local_pshub{{/str}}</h2>
+                    {{!
+                        The bar carries the numbers in its label, so a reader
+                        who cannot see the fill still gets the figure.
+                    }}
+                    <div class="ps-progress" role="img" aria-label="{{sessionlabel}}">
+                        <span class="ps-progress__fill" style="width: {{percent}}%"></span>
+                    </div>
+                    <p class="ps-progress__legend">
+                        <strong>{{percentlabel}}</strong>
+                        <span>{{sessionlabel}}</span>
+                    </p>
+                </section>
+            {{/progress}}
+
+            <section class="ps-side-card">
+                <h2 class="ps-side-card__title">{{#str}}learn_live_title, local_pshub{{/str}}</h2>
+
+                {{#hassessions}}
+                    <ul class="ps-sessionlist">
+                        {{#sessions}}
+                            <li class="ps-sessionrow ps-sessionrow--{{state}}">
+                                <span class="ps-sessionrow__mark" aria-hidden="true"></span>
+                                <a class="ps-sessionrow__body" href="{{url}}">
+                                    <span class="ps-sessionrow__title">{{title}}</span>
+                                    <span class="ps-sessionrow__meta">{{when}} · {{duration}}</span>
+                                </a>
+                                <span class="ps-sessionrow__state">{{statelabel}}</span>
+                            </li>
+                        {{/sessions}}
+                    </ul>
+
+                    {{#livesession}}
+                        <a class="ps-btn ps-btn--navy ps-btn--block" href="{{joinurl}}">
+                            {{#str}}learn_live_join, local_pshub{{/str}}
+                        </a>
+                    {{/livesession}}
+                    {{^livesession}}
+                        <p class="ps-side-card__note">{{#str}}learn_session_room_pending, local_pshub{{/str}}</p>
+                    {{/livesession}}
+                {{/hassessions}}
+                {{^hassessions}}
+                    <p class="ps-side-card__note">{{#str}}learn_course_nosessions, local_pshub{{/str}}</p>
+                {{/hassessions}}
+            </section>
+
+        </aside>
+
+        <div class="ps-coursepage__body">
+
+            <section class="ps-panel" id="ps-about">
+                <h2 class="ps-panel__title">{{#str}}course_about, local_pshub{{/str}}</h2>
+                <div class="ps-panel__prose">{{{course.summary}}}</div>
+            </section>
+
+            {{#hasgroups}}
+                {{#groups}}
+                    <section class="ps-panel" id="ps-group-{{key}}">
+                        <h2 class="ps-panel__title">{{label}}</h2>
+                        <ul class="ps-activities">
+                            {{#items}}
+                                <li class="ps-activity">
+                                    {{#hasurl}}
+                                        <a class="ps-activity__link" href="{{url}}">{{name}}</a>
+                                    {{/hasurl}}
+                                    {{^hasurl}}
+                                        <span class="ps-activity__label">{{name}}</span>
+                                    {{/hasurl}}
+                                </li>
+                            {{/items}}
+                        </ul>
+                    </section>
+                {{/groups}}
+            {{/hasgroups}}
+            {{^hasgroups}}
+                <section class="ps-panel" id="ps-content">
+                    <h2 class="ps-panel__title">{{#str}}learn_course_content, local_pshub{{/str}}</h2>
+                    <p class="ps-panel__empty">{{#str}}learn_course_nocontent, local_pshub{{/str}}</p>
+                </section>
+            {{/hasgroups}}
+
+        </div>
+
+    </div>
+
+</div>

@@ -1,0 +1,124 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_pshub/catalogue
+
+    The public catalogue: a search field, filter chips, and a grid of courses.
+
+    EVERY FILTER IS A LINK. Not a select that needs JavaScript to submit, not a
+    checkbox that needs a handler - a link to the same page with one parameter
+    changed. That is what makes a filtered view shareable, the back button
+    work, and the page usable with scripting off (AC-20). The search box is a
+    GET form with a visible submit button for the same reason.
+
+    Context variables required for this template:
+    * searchvalue - What is currently in the search box.
+    * actionurl - Where the search form submits.
+    * hiddenfields - [{name, value}] other filters, carried through the search.
+    * groups - [{label, chips: [{url, label, active}]}]
+    * total, count - The result line.
+    * courses - Card contexts, see catalogue_service::present().
+    * hasresults - bool
+    * hasfilters, clearurl - The "clear filters" link.
+    * paging - Rendered paging bar HTML.
+    * inapp - True inside the learner's shell, where the search lives in the top bar.
+
+    Example context (json):
+    {
+        "searchvalue": "",
+        "actionurl": "/local/pshub/catalogue.php",
+        "hiddenfields": [],
+        "groups": [{"label": "Language", "chips": [{"url": "?", "label": "All", "active": true}]}],
+        "count": "4 courses",
+        "courses": [],
+        "hasresults": false,
+        "hasfilters": false,
+        "clearurl": "/local/pshub/catalogue.php",
+        "paging": ""
+    }
+}}
+{{!
+    Inside the learner's space the shell already carries a search box and the
+    brand, so the page says who it is and gets out of the way. A visitor gets
+    the full band: they have just arrived and nothing else on screen has told
+    them what this list is.
+}}
+{{#inapp}}
+    <div class="ps-page__head">
+        <span class="ps-page__eyebrow">{{#str}}catalogue, local_pshub{{/str}}</span>
+        <h1 class="ps-page__title">{{#str}}catalogue_explore, local_pshub{{/str}}</h1>
+    </div>
+{{/inapp}}
+{{^inapp}}
+<section class="ps-cathead">
+    <div class="ps-cathead__inner">
+        <div class="ps-cathead__copy">
+            <h1 class="ps-cathead__title">{{#str}}catalogue, local_pshub{{/str}}</h1>
+            <p class="ps-cathead__lede">{{#str}}catalogue_lede, local_pshub{{/str}}</p>
+        </div>
+
+        <form class="ps-search" method="get" action="{{actionurl}}">
+            {{#hiddenfields}}
+                <input type="hidden" name="{{name}}" value="{{value}}">
+            {{/hiddenfields}}
+            <label class="ps-search__label" for="ps-q">{{#str}}filter_search, local_pshub{{/str}}</label>
+            <input class="ps-search__input" type="search" id="ps-q" name="q" value="{{searchvalue}}"
+                   placeholder="{{#str}}filter_search_placeholder, local_pshub{{/str}}">
+            <button class="ps-btn ps-btn--blue" type="submit">{{#str}}filter_apply, local_pshub{{/str}}</button>
+        </form>
+    </div>
+</section>
+{{/inapp}}
+
+<section class="ps-section ps-catalogue">
+    <div class="ps-section__inner">
+
+        <div class="ps-filters">
+            {{#groups}}
+                <div class="ps-filters__group">
+                    <span class="ps-filters__label">{{label}}</span>
+                    <div class="ps-filters__chips">
+                        {{#chips}}
+                            <a class="ps-chip {{#active}}ps-chip--on{{/active}}" href="{{url}}"
+                               {{#active}}aria-current="true"{{/active}}>{{label}}</a>
+                        {{/chips}}
+                    </div>
+                </div>
+            {{/groups}}
+        </div>
+
+        <div class="ps-catalogue__count">
+            <span>{{count}}</span>
+            {{#hasfilters}}
+                <a class="ps-catalogue__clear" href="{{clearurl}}">{{#str}}filter_clear, local_pshub{{/str}}</a>
+            {{/hasfilters}}
+        </div>
+
+        {{#hasresults}}
+            <div class="ps-course-grid">
+                {{#courses}}
+                    {{> local_pshub/course_card }}
+                {{/courses}}
+            </div>
+            <div class="ps-catalogue__paging">{{{paging}}}</div>
+        {{/hasresults}}
+        {{^hasresults}}
+            <p class="ps-empty">{{#str}}catalogue_empty, local_pshub{{/str}}</p>
+        {{/hasresults}}
+
+    </div>
+</section>

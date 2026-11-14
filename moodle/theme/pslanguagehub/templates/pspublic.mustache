@@ -1,0 +1,155 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template theme_pslanguagehub/pspublic
+
+    The public shell: a navigation bar, the page, a footer.
+
+    No navbar drawer, no block regions, no activity header, no footer popover.
+    A visitor has not signed up yet and should see a product rather than a
+    learning management system (AC-17). Everything Moodle genuinely needs is
+    still here: standard_head_html, top of body, after main region, end of
+    body - that is where the session key, the toast region and every module's
+    JavaScript live, and dropping them breaks pages in ways that surface
+    weeks later.
+
+    There is no JavaScript of our own in this shell. The navigation is plain
+    links, so it works with scripting off (AC-20).
+
+    Context variables required for this template:
+    * output - Standard Moodle output object.
+    * bodyattributes - From core_renderer::body_attributes.
+    * homeurl, catalogueurl, loginurl, signupurl, myurl, staffurl - strings.
+    * navitems - [{url, label}]
+    * loggedin - bool
+    * year - four digits, for the copyright line.
+
+    Example context (json):
+    {
+        "output": {"main_content": "<h1>Page</h1>"},
+        "bodyattributes": "class=\"ps-public\"",
+        "homeurl": "/local/pshub/index.php",
+        "catalogueurl": "/local/pshub/catalogue.php",
+        "loginurl": "/login/index.php",
+        "signupurl": "/login/signup.php",
+        "myurl": "/my/",
+        "staffurl": "/login/index.php",
+        "navitems": [{"url": "/local/pshub/catalogue.php", "label": "Catalogue"}],
+        "loggedin": false,
+        "year": "2026"
+    }
+}}
+{{> theme_boost/head }}
+
+<body {{{ bodyattributes }}}>
+{{> core/local/toast/wrapper}}
+
+{{{ output.standard_top_of_body_html }}}
+
+<a class="ps-skip visually-hidden-focusable" href="#region-main">{{#str}}skipmain, theme_pslanguagehub{{/str}}</a>
+
+<header class="ps-nav">
+    <div class="ps-nav__inner">
+
+        <a class="ps-nav__brand" href="{{homeurl}}">
+            {{> theme_pslanguagehub/brandmark }}
+            <span class="ps-nav__name">{{#str}}pluginname, theme_pslanguagehub{{/str}}</span>
+        </a>
+
+        <nav class="ps-nav__links" aria-label="{{#str}}nav_main, theme_pslanguagehub{{/str}}">
+            {{#navitems}}
+                <a href="{{url}}">{{label}}</a>
+            {{/navitems}}
+        </nav>
+
+        <div class="ps-nav__actions">
+            {{^loggedin}}
+                <a class="ps-btn ps-btn--outline" href="{{loginurl}}">{{#str}}nav_signin, theme_pslanguagehub{{/str}}</a>
+                <a class="ps-btn ps-btn--blue" href="{{signupurl}}">{{#str}}nav_signup, theme_pslanguagehub{{/str}}</a>
+            {{/loggedin}}
+            {{#loggedin}}
+                <a class="ps-btn ps-btn--blue" href="{{myurl}}">{{#str}}nav_myspace, theme_pslanguagehub{{/str}}</a>
+            {{/loggedin}}
+        </div>
+
+    </div>
+</header>
+
+<main id="region-main" class="ps-main">
+    {{{ output.main_content }}}
+</main>
+
+<footer class="ps-foot">
+    <div class="ps-foot__inner">
+
+        <div class="ps-foot__brand">
+            <a class="ps-foot__mark" href="{{homeurl}}">
+                {{> theme_pslanguagehub/brandmark }}
+                <span class="ps-foot__name">{{#str}}pluginname, theme_pslanguagehub{{/str}}</span>
+            </a>
+            <p class="ps-foot__tagline">
+                <span class="ps-learn">{{#str}}tagline_learn, theme_pslanguagehub{{/str}}</span>
+                <span class="ps-speak">{{#str}}tagline_speak, theme_pslanguagehub{{/str}}</span>
+                <span class="ps-succeed">{{#str}}tagline_succeed, theme_pslanguagehub{{/str}}</span>
+            </p>
+            <p class="ps-foot__blurb">{{#str}}foot_blurb, theme_pslanguagehub{{/str}}</p>
+        </div>
+
+        <div class="ps-foot__col">
+            <h2 class="ps-foot__heading">{{#str}}foot_platform, theme_pslanguagehub{{/str}}</h2>
+            {{! navitems already opens with the catalogue - listing it again
+                here is how the footer ended up saying "Courses" twice. }}
+            {{#navitems}}
+                <a href="{{url}}">{{label}}</a>
+            {{/navitems}}
+        </div>
+
+        <div class="ps-foot__col">
+            <h2 class="ps-foot__heading">{{#str}}foot_legal, theme_pslanguagehub{{/str}}</h2>
+            {{!
+                Real policies land with the terms work; until they exist these
+                would be links to nothing, and a link to nothing is worse than
+                a line of text that says the same thing.
+            }}
+            <span class="ps-foot__pending">{{#str}}foot_terms, theme_pslanguagehub{{/str}}</span>
+            <span class="ps-foot__pending">{{#str}}foot_privacy, theme_pslanguagehub{{/str}}</span>
+            <span class="ps-foot__pending">{{#str}}foot_refunds, theme_pslanguagehub{{/str}}</span>
+        </div>
+
+        <div class="ps-foot__col">
+            <h2 class="ps-foot__heading">{{#str}}foot_app, theme_pslanguagehub{{/str}}</h2>
+            {{! The app ships in S12. Placeholders, and honest about it. }}
+            <span class="ps-foot__pending">{{#str}}app_google_soon, theme_pslanguagehub{{/str}}</span>
+            <span class="ps-foot__pending">{{#str}}app_apple_soon, theme_pslanguagehub{{/str}}</span>
+        </div>
+
+    </div>
+
+    <div class="ps-foot__base">
+        <span class="ps-foot__copy">{{#str}}foot_copyright, theme_pslanguagehub, {{year}}{{/str}}</span>
+        {{!
+            The staff door, cahier §5.1: discreet, not hidden. A teacher needs
+            to find it; a learner has no reason to notice it.
+        }}
+        <a class="ps-foot__staff" href="{{staffurl}}">{{#str}}foot_staff, theme_pslanguagehub{{/str}}</a>
+    </div>
+</footer>
+
+{{{ output.standard_after_main_region_html }}}
+{{{ output.standard_end_of_body_html }}}
+</body>
+</html>

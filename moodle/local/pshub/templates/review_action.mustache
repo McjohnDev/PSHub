@@ -1,0 +1,98 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_pshub/review_action
+
+    Confirm a decision about a course: submit it, approve it, or reject it with
+    a reason.
+
+    A plain POST form with a sesskey. No scripting: nothing here needs it, and
+    a confirmation that depends on JavaScript is a confirmation that silently
+    stops working (AC-20).
+
+    Context variables required for this template:
+    * coursename, actionurl, id, action, sesskey, cancelurl
+    * isreject - the one action that collects a reason.
+    * comment, haserror, error - the reason, kept across a failed submit.
+    * question - the sentence shown for a confirmation, when there is one.
+    * submitlabel - what the button says.
+    * hasproblems, problems - what still has to be fixed before submitting.
+
+    Example context (json):
+    {
+        "coursename": "Anglais A2",
+        "actionurl": "/local/pshub/review.php",
+        "id": 4, "action": "reject", "sesskey": "x",
+        "cancelurl": "/local/pshub/admin/index.php",
+        "isreject": true, "comment": "", "haserror": false,
+        "submitlabel": "Rejeter", "hasproblems": false
+    }
+}}
+<div class="ps-page ps-page--narrow">
+
+    <div class="ps-page__head">
+        <span class="ps-page__eyebrow">{{coursename}}</span>
+        <h1 class="ps-page__title">{{submitlabel}}</h1>
+    </div>
+
+    <section class="ps-side-card">
+
+        {{#hasproblems}}
+            {{!
+                A course that cannot be submitted says what is missing, and the
+                button is not offered. An error after the click would be the
+                same information delivered later.
+            }}
+            <p class="ps-note ps-note--warn">{{problems}}</p>
+            <a class="ps-btn ps-btn--outline" href="{{cancelurl}}">{{#str}}back, core{{/str}}</a>
+        {{/hasproblems}}
+
+        {{^hasproblems}}
+            <form method="post" action="{{actionurl}}">
+                <input type="hidden" name="id" value="{{id}}">
+                <input type="hidden" name="action" value="{{action}}">
+                <input type="hidden" name="sesskey" value="{{sesskey}}">
+                <input type="hidden" name="confirm" value="1">
+
+                {{#question}}
+                    <p class="ps-panel__prose">{{question}}</p>
+                {{/question}}
+
+                {{#isreject}}
+                    <p class="ps-panel__prose">{{#str}}review_reject_lede, local_pshub{{/str}}</p>
+
+                    {{#haserror}}
+                        <p class="ps-note ps-note--warn" role="alert">{{error}}</p>
+                    {{/haserror}}
+
+                    <label class="ps-field__label" for="ps-comment">
+                        {{#str}}review_reject_label, local_pshub{{/str}}
+                    </label>
+                    <textarea class="ps-field__input" id="ps-comment" name="comment" rows="5"
+                              required aria-describedby="ps-comment-help">{{comment}}</textarea>
+                {{/isreject}}
+
+                <div class="ps-formactions">
+                    <button class="ps-btn ps-btn--navy" type="submit">{{submitlabel}}</button>
+                    <a class="ps-btn ps-btn--outline" href="{{cancelurl}}">{{#str}}cancel, core{{/str}}</a>
+                </div>
+            </form>
+        {{/hasproblems}}
+
+    </section>
+
+</div>

@@ -1,0 +1,133 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_pshub/session_lobby
+
+    Where a learner waits for a class and walks into it.
+
+    ONE ANSWER, ALWAYS WITH A REASON. Five refusals need five sentences and
+    five different next steps: too early is a wait, full is a message to the
+    teacher, lapsed access is a purchase, ended is a shrug, cancelled is news.
+    A page that says only "you cannot join" has told nobody anything (§15).
+
+    NO COUNTDOWN WITHOUT A CLOCK TO TRUST. The opening time is printed from the
+    server's clock, and the server's current time is printed beside it, so a
+    learner whose device is an hour out can see why the door is shut. A ticking
+    countdown is an enhancement on top of that (PSH-S05-09), never the only
+    way to know when the class starts - this page works with scripting off.
+
+    Context variables required for this template:
+    * coursename, courseurl, title, when, duration, servertime
+    * canjoin, message, state - the verdict.
+    * hasroom, joinurl, showroomnotice - whether there is anything to walk into.
+    * hasopensat, opensat, opensin, opensistoday - when the door opens.
+    * needsaccess, salesurl - the one refusal with something to buy.
+    * islive - the class is happening now.
+
+    Example context (json):
+    {
+        "coursename": "Anglais B1", "courseurl": "/local/pshub/learn/course.php?id=2",
+        "title": "Séance 1", "when": "lundi 5 octobre, 18:00", "duration": "50 min",
+        "servertime": "17:42",
+        "canjoin": false, "message": "La salle ouvre 15 minutes avant le début.",
+        "state": "tooearly",
+        "hasroom": false, "showroomnotice": false,
+        "hasopensat": true, "opensat": "17:45", "opensin": 180,
+        "needsaccess": false, "salesurl": "/local/pshub/course.php?id=2",
+        "islive": false
+    }
+}}
+<div class="ps-page ps-page--narrow">
+
+    <nav class="ps-crumb" aria-label="{{coursename}}">
+        <a class="ps-crumb__link" href="{{courseurl}}">{{coursename}}</a>
+        <span class="ps-crumb__sep" aria-hidden="true">/</span>
+        <span class="ps-crumb__here">{{#str}}lobby_here, local_pshub{{/str}}</span>
+    </nav>
+
+    <div class="ps-lobby ps-lobby--{{state}}">
+
+        {{#islive}}
+            <span class="ps-lobby__live">{{#str}}learn_live_now, local_pshub{{/str}}</span>
+        {{/islive}}
+
+        <h1 class="ps-lobby__title">{{title}}</h1>
+        <p class="ps-lobby__when">{{when}} · {{duration}}</p>
+
+        {{#canjoin}}
+            {{!
+                The end-of-class warning, written by the clock at five minutes
+                and again at two. A class that ends without warning is the
+                complaint §8.3 exists to prevent; a warning that never arrives
+                because scripting is off is a courtesy missed, not a breach.
+            }}
+            <p class="ps-lobby__warning" data-ps-endswarning="{{endswarning}}" hidden></p>
+
+            {{#hasroom}}
+                <a class="ps-btn ps-btn--navy ps-btn--big" href="{{joinurl}}">
+                    {{#str}}join_ok, local_pshub{{/str}}
+                </a>
+                <p class="ps-lobby__note">{{#str}}lobby_joinnote, local_pshub{{/str}}</p>
+            {{/hasroom}}
+            {{#showroomnotice}}
+                {{!
+                    The door is open and there is nowhere to walk into: the
+                    session has no BigBlueButton room yet. Better said than
+                    offered as a button that opens nothing.
+                }}
+                <p class="ps-note ps-note--warn">{{#str}}lobby_noroom, local_pshub{{/str}}</p>
+            {{/showroomnotice}}
+        {{/canjoin}}
+
+        {{^canjoin}}
+            <p class="ps-lobby__message">{{message}}</p>
+
+            {{#hasopensat}}
+                <p class="ps-lobby__opens">
+                    {{#opensistoday}}{{#str}}lobby_opensat, local_pshub, {{opensat}}{{/str}}{{/opensistoday}}
+                    {{^opensistoday}}{{#str}}lobby_opensonday, local_pshub, {{opensat}}{{/str}}{{/opensistoday}}
+                </p>
+                {{!
+                    Filled in by the clock when scripting is available, hidden
+                    and empty otherwise - the sentence above already says when
+                    the room opens.
+                }}
+                <p class="ps-lobby__countdown" data-ps-countdown hidden></p>
+            {{/hasopensat}}
+
+            {{#needsaccess}}
+                <a class="ps-btn ps-btn--navy" href="{{salesurl}}">
+                    {{#str}}lobby_seecourse, local_pshub{{/str}}
+                </a>
+            {{/needsaccess}}
+            {{^needsaccess}}
+                <a class="ps-btn ps-btn--outline" href="{{courseurl}}">
+                    {{#str}}lobby_backtocourse, local_pshub{{/str}}
+                </a>
+            {{/needsaccess}}
+        {{/canjoin}}
+
+        {{!
+            The server's own clock, printed small. It costs one line and it is
+            the only way a learner whose device is an hour out can work out why
+            the door is shut.
+        }}
+        <p class="ps-lobby__clock">{{#str}}lobby_servertime, local_pshub, {{servertime}}{{/str}}</p>
+
+    </div>
+
+</div>

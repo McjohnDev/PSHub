@@ -1,0 +1,51 @@
+// PS Language Hub - page-to-page transitions (PSH-S02-11).
+//
+// Cross-document view transitions, in CSS. No JavaScript, no router, no
+// framework: the browser does the work, and a browser that has never heard of
+// this simply navigates the way it always did. That is the whole reason this
+// is worth having on a 2G-first product - it costs zero bytes of script and
+// degrades to nothing.
+//
+// WHAT IT IS FOR, AND WHAT IT IS NOT FOR
+// Moving between pages of this site is a page load, and on a slow connection a
+// page load looks like a flash of white. A short cross-fade covers the seam
+// and makes the site feel continuous. It is not decoration: remove it and the
+// navigation feels like a series of jumps.
+//
+// WHAT IT DELIBERATELY DOES NOT DO
+// No sliding, no scaling, no shared-element flights between pages. Movement on
+// a page a learner sees several times a day becomes noise within a week, and
+// on a slow device it competes with the paint it is supposed to be hiding.
+// Opacity only, and briefly.
+
+@view-transition {
+    navigation: auto;
+}
+
+// The default cross-fade is 250ms, which reads as slow when it happens on
+// every link. 180ms with a strong ease-out is over while the eye is still
+// arriving - the same curve and the same reasoning as the card entrance on the
+// login page.
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 180ms;
+    animation-timing-function: cubic-bezier(.23, 1, .32, 1);
+}
+
+// The brand chrome does not cross-fade with the page. The sidebar and the
+// public navigation bar are the same object before and after the navigation,
+// so naming them keeps them still while the content changes underneath -
+// which is what makes the site feel like an application rather than a slide
+// show.
+.ps-side,
+.ps-nav {
+    view-transition-name: ps-chrome;
+}
+
+// Motion sickness is a real condition and this is a navigation, not a
+// flourish: someone who has asked for less movement gets none.
+@media (prefers-reduced-motion: reduce) {
+    @view-transition {
+        navigation: none;
+    }
+}

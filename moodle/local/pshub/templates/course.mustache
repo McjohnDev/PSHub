@@ -1,0 +1,156 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_pshub/course
+
+    The public course page.
+
+    WHAT IS NOT HERE, AND WHY
+    The approved design also shows the teacher, the module plan, the next three
+    live sessions with their remaining seats, the skills covered and the XP on
+    offer. None of that exists in the data model yet - sessions land in S5,
+    certificates in S14 - and inventing a teacher's name or a session date on
+    the page a visitor is about to pay from is the one thing this page must
+    never do. The sections appear when the data does.
+
+    The call to action is whatever the gating service says the next click will
+    do, so the button and the paywall can never disagree.
+
+    Context variables required for this template:
+    * course - A card context from catalogue_service::present(), plus summary.
+    * catalogueurl - Back to the catalogue.
+    * cta - {url, label, primary} or absent.
+    * ctanote - A sentence under the button, or absent.
+    * ctanotice - Rendered notification HTML (payment pending), or absent.
+    * included - [{text}] what a place on this course carries.
+    * sessions - [{title, when, duration}] the next dates, or none.
+    * hassessions - bool
+
+    Example context (json):
+    {
+        "catalogueurl": "/local/pshub/catalogue.php",
+        "course": {"fullname": "Anglais conversation B1", "langplate": "EN", "cardtone": 1},
+        "cta": {"url": "/login/index.php", "label": "Sign in to join", "primary": true},
+        "included": [{"text": "50-minute live sessions"}]
+    }
+}}
+<article class="ps-course">
+
+    <nav class="ps-crumbs" aria-label="{{#str}}breadcrumb, local_pshub{{/str}}">
+        <div class="ps-crumbs__inner">
+            <a href="{{catalogueurl}}">{{#str}}catalogue, local_pshub{{/str}}</a>
+            <span aria-hidden="true">/</span>
+            <span class="ps-crumbs__here">{{course.fullname}}</span>
+        </div>
+    </nav>
+
+    <header class="ps-coursehead ps-coursehead--tone{{course.cardtone}}">
+        <div class="ps-coursehead__inner">
+            <span class="ps-coursehead__plate" aria-hidden="true">{{course.langplate}}</span>
+
+            <div class="ps-coursehead__copy">
+                {{#course.badges.0}}
+                    <p class="ps-coursehead__badges">
+                        {{#course.badges}}
+                            <span class="ps-badge ps-badge--{{style}} ps-badge--inline">{{label}}</span>
+                        {{/course.badges}}
+                    </p>
+                {{/course.badges.0}}
+
+                <h1 class="ps-coursehead__title">{{course.fullname}}</h1>
+
+                <p class="ps-coursehead__meta">
+                    {{#course.cefr_level}}{{course.cefr_level}} · {{/course.cefr_level}}
+                    {{#str}}card_duration, local_pshub, {{course.session_duration_minutes}}{{/str}}
+                    {{#course.is_one_to_one}} · {{#str}}card_onetoone, local_pshub{{/str}}{{/course.is_one_to_one}}
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <div class="ps-section">
+        <div class="ps-section__inner ps-course__grid">
+
+            <div class="ps-course__main">
+                <h2 class="ps-course__h2">{{#str}}course_about, local_pshub{{/str}}</h2>
+                <div class="ps-course__summary">{{{course.summary}}}</div>
+            </div>
+
+            {{#hassessions}}
+                {{!
+                    The dates, on the page where somebody decides whether to
+                    pay. They are deciding whether they can be there on those
+                    evenings, and a course that cannot say when it runs is
+                    asking for money on trust.
+                }}
+                <section class="ps-course__dates">
+                    <h2 class="ps-course__h2">{{#str}}course_dates, local_pshub{{/str}}</h2>
+                    <ul class="ps-datelist">
+                        {{#sessions}}
+                            <li class="ps-dateitem">
+                                <span class="ps-dateitem__when">{{when}}</span>
+                                <span class="ps-dateitem__title">{{title}}</span>
+                                <span class="ps-dateitem__meta">{{duration}}</span>
+                            </li>
+                        {{/sessions}}
+                    </ul>
+                </section>
+            {{/hassessions}}
+
+            <aside class="ps-course__aside">
+                <div class="ps-pricecard">
+
+                    <p class="ps-pricecard__price">
+                        {{#course.isfree}}
+                            <span class="ps-price-now ps-price-now--free">{{#str}}card_free, local_pshub{{/str}}</span>
+                        {{/course.isfree}}
+                        {{^course.isfree}}
+                            {{#course.hasdiscount}}<span class="ps-price-was">{{course.pricebaseformatted}}</span>{{/course.hasdiscount}}
+                            <span class="ps-price-now">{{course.priceformatted}}</span>
+                        {{/course.isfree}}
+                    </p>
+
+                    {{#ctanotice}}<div class="ps-pricecard__notice">{{{ctanotice}}}</div>{{/ctanotice}}
+
+                    {{#cta}}
+                        <a class="ps-btn ps-btn--navy ps-pricecard__cta" href="{{url}}">{{label}}</a>
+                    {{/cta}}
+
+                    {{#ctanote}}<p class="ps-pricecard__note">{{ctanote}}</p>{{/ctanote}}
+
+                    <ul class="ps-pricecard__list">
+                        {{#included}}
+                            <li>{{text}}</li>
+                        {{/included}}
+                    </ul>
+
+                    {{^course.isfree}}
+                        <div class="ps-pricecard__pay">
+                            <span class="ps-pricecard__paylabel">{{#str}}course_pay_with, local_pshub{{/str}}</span>
+                            <span class="ps-paytag">MTN MoMo</span>
+                            <span class="ps-paytag">Orange Money</span>
+                            <span class="ps-paytag">{{#str}}course_pay_card, local_pshub{{/str}}</span>
+                            <p class="ps-pricecard__note">{{#str}}course_pay_note, local_pshub{{/str}}</p>
+                        </div>
+                    {{/course.isfree}}
+
+                </div>
+            </aside>
+
+        </div>
+    </div>
+</article>

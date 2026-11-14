@@ -1,0 +1,141 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_pshub/admin_featured
+
+    Which courses the home page leads with, and in what order.
+
+    Every control is a POST form with a sesskey rather than a link: the front
+    page's running order is not something to change by following something, and
+    a one-button form needs no scripting at all (AC-20). Drag and drop would
+    need both a mouse and JavaScript; up and down need neither.
+
+    Context variables required for this template:
+    * actionurl, sesskey
+    * featured - [{courseid, fullname, langplate, cardtone, position, isfirst, islast, islive}]
+    * hasfeatured - bool
+    * choices - [{courseid, fullname}] published courses not featured yet.
+    * haschoices - bool
+    * homeurl - where the result is visible.
+
+    Example context (json):
+    {
+        "actionurl": "/local/pshub/admin/featured.php",
+        "sesskey": "x",
+        "featured": [{"courseid": 2, "fullname": "Anglais B1", "langplate": "EN",
+                      "cardtone": 3, "position": 1, "isfirst": true, "islast": false}],
+        "hasfeatured": true,
+        "choices": [], "haschoices": false,
+        "homeurl": "/local/pshub/index.php"
+    }
+}}
+<div class="ps-page ps-page--narrow">
+
+    <div class="ps-page__head">
+        <h1 class="ps-page__title">{{#str}}featured_title, local_pshub{{/str}}</h1>
+        <p class="ps-page__lede">{{#str}}featured_lede, local_pshub{{/str}}</p>
+    </div>
+
+    <section class="ps-side-card">
+        <div class="ps-block__head">
+            <h2 class="ps-side-card__title">{{#str}}featured_current, local_pshub{{/str}}</h2>
+            <a class="ps-block__more" href="{{homeurl}}">{{#str}}featured_seehome, local_pshub{{/str}}</a>
+        </div>
+
+        {{#hasfeatured}}
+            <ul class="ps-rows">
+                {{#featured}}
+                    <li class="ps-row ps-row--tone{{cardtone}}">
+                        <span class="ps-row__plate" aria-hidden="true">{{langplate}}</span>
+                        <span class="ps-row__body">
+                            <span class="ps-row__title">{{fullname}}</span>
+                            <span class="ps-row__meta">{{#str}}featured_position, local_pshub, {{position}}{{/str}}</span>
+                            {{^islive}}
+                                <span class="ps-row__meta">{{#str}}featured_notlive, local_pshub{{/str}}</span>
+                            {{/islive}}
+                        </span>
+                        <span class="ps-row__end">
+                            {{^isfirst}}
+                                <form method="post" action="{{actionurl}}">
+                                    <input type="hidden" name="sesskey" value="{{sesskey}}">
+                                    <input type="hidden" name="id" value="{{courseid}}">
+                                    <input type="hidden" name="action" value="up">
+                                    <button class="ps-btn ps-btn--outline ps-btn--small" type="submit">
+                                        {{#str}}featured_up, local_pshub{{/str}}
+                                    </button>
+                                </form>
+                            {{/isfirst}}
+                            {{^islast}}
+                                <form method="post" action="{{actionurl}}">
+                                    <input type="hidden" name="sesskey" value="{{sesskey}}">
+                                    <input type="hidden" name="id" value="{{courseid}}">
+                                    <input type="hidden" name="action" value="down">
+                                    <button class="ps-btn ps-btn--outline ps-btn--small" type="submit">
+                                        {{#str}}featured_down, local_pshub{{/str}}
+                                    </button>
+                                </form>
+                            {{/islast}}
+                            <form method="post" action="{{actionurl}}">
+                                <input type="hidden" name="sesskey" value="{{sesskey}}">
+                                <input type="hidden" name="id" value="{{courseid}}">
+                                <input type="hidden" name="action" value="remove">
+                                <button class="ps-btn ps-btn--small ps-btn--quiet" type="submit">
+                                    {{#str}}featured_remove, local_pshub{{/str}}
+                                </button>
+                            </form>
+                        </span>
+                    </li>
+                {{/featured}}
+            </ul>
+        {{/hasfeatured}}
+        {{^hasfeatured}}
+            {{!
+                Said plainly: the home page does not break without this, it
+                falls back to the most recently published courses.
+            }}
+            <p class="ps-side-card__note">{{#str}}featured_none, local_pshub{{/str}}</p>
+        {{/hasfeatured}}
+    </section>
+
+    <section class="ps-side-card">
+        <h2 class="ps-side-card__title">{{#str}}featured_add, local_pshub{{/str}}</h2>
+
+        {{#haschoices}}
+            <form method="post" action="{{actionurl}}">
+                <input type="hidden" name="sesskey" value="{{sesskey}}">
+                <input type="hidden" name="action" value="add">
+                <label class="ps-field__label" for="ps-featured-course">
+                    {{#str}}featured_choose, local_pshub{{/str}}
+                </label>
+                <select class="ps-field__input" id="ps-featured-course" name="id">
+                    {{#choices}}
+                        <option value="{{courseid}}">{{fullname}}</option>
+                    {{/choices}}
+                </select>
+                <div class="ps-formactions">
+                    <button class="ps-btn ps-btn--navy" type="submit">
+                        {{#str}}featured_add_action, local_pshub{{/str}}
+                    </button>
+                </div>
+            </form>
+        {{/haschoices}}
+        {{^haschoices}}
+            <p class="ps-side-card__note">{{#str}}featured_nochoices, local_pshub{{/str}}</p>
+        {{/haschoices}}
+    </section>
+
+</div>

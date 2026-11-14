@@ -1,0 +1,123 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_pshub/course_card
+
+    One course, on the home page or in the catalogue.
+
+    The context comes from catalogue_service::present(), which resolves price
+    and badges through price_resolver - the same resolver the paywall uses, so
+    a card can never advertise a figure the checkout disagrees with. The price
+    arrives preformatted: templates do no arithmetic, and none of them needs to
+    know that XAF has no subunit.
+
+    A card shows the course's own image when one has been uploaded, and the
+    language on a brand ground when none has. The plate is not a placeholder to
+    be replaced later - it is what keeps a catalogue scannable and a new course
+    publishable on the day it is written, with no photograph and nothing to
+    download.
+
+    The whole card is ONE link. A card with a link inside it is a card most of
+    whose surface does nothing, which on a phone is the difference between one
+    tap and three.
+
+    Context variables required for this template:
+    * url - Course detail page.
+    * fullname - Course name.
+    * langplate - Language code, uppercase, shown on the coloured ground.
+    * cardtone - 1-4, which ground this course gets.
+    * cefr_level, session_duration_minutes, is_one_to_one - the meta line.
+    * isfree, hasdiscount, priceformatted, pricebaseformatted - price.
+    * topbadge - {label, style}, or absent when the course carries no type.
+    * hideprice - True in the learner's own space, where the course is already
+      theirs and the price is noise rather than information.
+
+    Example context (json):
+    {
+        "url": "/local/pshub/course.php?id=4",
+        "fullname": "Anglais général — A2",
+        "langplate": "EN",
+        "cardtone": 2,
+        "cefr_level": "A2",
+        "session_duration_minutes": 50,
+        "is_one_to_one": false,
+        "isfree": false,
+        "hasdiscount": true,
+        "priceformatted": "20 000 FCFA",
+        "pricebaseformatted": "25 000 FCFA",
+        "topbadge": {"label": "-20 %", "style": "promo"}
+    }
+}}
+<article class="ps-card ps-card--tone{{cardtone}}">
+    <a class="ps-card__link" href="{{url}}">
+
+        <span class="ps-card__plate">
+            {{#hasimage}}
+                {{!
+                    alt is empty on purpose: the course title sits directly
+                    under this image and says the same thing. A screen reader
+                    announcing both would read every card twice.
+
+                    Lazy and async because a catalogue is a grid of these, and
+                    on a 2G connection the ones below the fold must not compete
+                    with the ones on it (§13.2).
+                }}
+                <img class="ps-card__image" src="{{imageurl}}" alt=""
+                     loading="lazy" decoding="async">
+            {{/hasimage}}
+            {{^hasimage}}
+                <span class="ps-card__plate-text">{{langplate}}</span>
+            {{/hasimage}}
+            {{#topbadge}}
+                <span class="ps-badge ps-badge--{{style}}">{{label}}</span>
+            {{/topbadge}}
+        </span>
+
+        <span class="ps-card__body">
+            <span class="ps-card__title">{{fullname}}</span>
+
+            <span class="ps-card__meta">
+                {{#cefr_level}}{{cefr_level}} · {{/cefr_level}}
+                {{#str}}card_duration, local_pshub, {{session_duration_minutes}}{{/str}}
+                {{#is_one_to_one}} · {{#str}}card_onetoone, local_pshub{{/str}}{{/is_one_to_one}}
+            </span>
+
+            {{^hideprice}}
+            <span class="ps-card__price">
+                {{#isfree}}
+                    <span class="ps-price-now ps-price-now--free">{{#str}}card_free, local_pshub{{/str}}</span>
+                {{/isfree}}
+                {{^isfree}}
+                    {{#hasdiscount}}<span class="ps-price-was">{{pricebaseformatted}}</span>{{/hasdiscount}}
+                    <span class="ps-price-now">{{priceformatted}}</span>
+                {{/isfree}}
+            </span>
+            {{/hideprice}}
+
+            {{!
+                The action depends on where the card is. In the catalogue it
+                invites someone to look at a course; in the learner's own space
+                the course is already theirs, so it opens.
+            }}
+            <span class="ps-card__cta">
+                {{#ctalabel}}{{ctalabel}}{{/ctalabel}}
+                {{^ctalabel}}{{#str}}card_view, local_pshub{{/str}}{{/ctalabel}}
+            </span>
+        </span>
+
+    </a>
+</article>

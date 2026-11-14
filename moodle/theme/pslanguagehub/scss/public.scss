@@ -1,0 +1,1331 @@
+// PS Language Hub - the public site.
+//
+// Home, catalogue and course detail, rendered in the `pspublic` layout. None of
+// this touches Moodle's own pages: every selector sits under .ps-public, which
+// that layout puts on the body.
+//
+// Kept apart from post.scss on purpose. post.scss styles MOODLE pages - the
+// login form and anything else core renders. This file styles OUR pages. The
+// two age differently: the first has to be re-checked whenever Boost changes,
+// the second only when the product changes.
+//
+// Three rules hold the whole thing together, and they are the same three the
+// login page follows:
+//
+//   navy      structure   grounds, chrome, the primary action
+//   blue      interaction links, secondary action, the plate on a card
+//   gradient  brand       twice per page at most, never behind text - the
+//                         pink stop cannot carry type at AA
+//
+// There is no JavaScript behind any of it. The FAQ opens with <details>, the
+// navigation is links, the filters are a form (AC-20).
+
+$ps-ink-soft:   #3C4E7A;   // Body text that is not the main line.
+$ps-ink-faint:  #7B8AB0;   // Struck-through prices, "coming soon".
+$ps-line:       #E2EAF7;   // Hairlines on white.
+$ps-tint:       #F2F7FF;   // The quiet panel ground.
+$ps-gutter:     clamp(1.25rem, 5vw, 4rem);
+$ps-measure:    78rem;     // 1248px: the design's 1280 less its gutters.
+
+.ps-public {
+    background: #fff;
+
+    // The page-top hairline belongs to Moodle's own pages. Out here the brand
+    // is the navigation bar, and a second line above it is noise.
+    &::before {
+        content: none;
+    }
+}
+
+.ps-skip {
+    display: inline-block;
+    padding: .75rem 1rem;
+    background: $ps-navy;
+    color: #fff;
+}
+
+// Moodle paints #region-main grey and boxes it in, because on its own pages
+// that box IS the page. Out here each section paints itself edge to edge, so
+// the wrapper has to be nothing at all - otherwise a grey band shows through
+// between the navy hero and the white sections.
+//
+// The ID in this selector is deliberate, and the only one in this file: core's
+// own rule is #region-main, and no number of classes outranks an ID.
+#region-main.ps-main {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+// -- The mark -----------------------------------------------------------------
+// Two letters on the gradient. At this size the full logo is mud, and this
+// costs no request at all.
+.ps-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex: none;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #E8336F 0%, #F7941D 55%, #FBC02D 100%);
+    font-family: $headings-font-family;
+    font-weight: 800;
+    font-size: 1rem;
+    color: #fff;
+}
+
+// -- Buttons ------------------------------------------------------------------
+// Deliberately not Bootstrap's .btn. These appear on navy and on white, and
+// bending Bootstrap's variables in both directions costs more than the few
+// rules it would save.
+.ps-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;              // A tap target, not a cursor target.
+    padding: .6rem 1.15rem;
+    border: 1.5px solid transparent;
+    border-radius: 10px;
+    font-family: $headings-font-family;
+    font-weight: 700;
+    font-size: .9375rem;
+    text-decoration: none;
+    transition: transform 160ms cubic-bezier(.23, 1, .32, 1),
+                background-color 200ms ease, border-color 200ms ease;
+
+    &:hover,
+    &:focus {
+        text-decoration: none;
+    }
+
+    &:active {
+        transform: scale(.97);
+    }
+}
+
+.ps-btn--navy    { background: $ps-navy;     color: #fff; }
+.ps-btn--blue    { background: $ps-blue-700; color: #fff; }
+.ps-btn--white   { background: #fff;         color: $ps-navy; }
+.ps-btn--outline { border-color: $ps-navy;   color: $ps-navy; }
+.ps-btn--ghost   { border-color: $ps-blue-300; color: $ps-blue-300; }
+
+.ps-btn--navy:hover,
+.ps-btn--navy:focus    { background: $ps-navy-700; color: #fff; }
+.ps-btn--blue:hover,
+.ps-btn--blue:focus    { background: $ps-blue-900; color: #fff; }
+.ps-btn--white:hover,
+.ps-btn--white:focus   { background: $ps-blue-050; color: $ps-navy; }
+.ps-btn--outline:hover,
+.ps-btn--outline:focus { background: $ps-navy; color: #fff; }
+.ps-btn--ghost:hover,
+.ps-btn--ghost:focus   { border-color: #fff; color: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+    .ps-btn:active { transform: none; }
+}
+
+// -- Navigation ---------------------------------------------------------------
+
+.ps-nav {
+    border-bottom: 1px solid $ps-line;
+    background: #fff;
+}
+
+.ps-nav__inner {
+    max-width: $ps-measure;
+    margin-inline: auto;
+    min-height: 76px;
+    padding: .75rem $ps-gutter;
+    display: flex;
+    align-items: center;
+    gap: 1rem 2rem;
+    flex-wrap: wrap;
+}
+
+.ps-nav__brand {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    text-decoration: none;
+    color: $ps-navy;
+
+    &:hover { text-decoration: none; }
+}
+
+.ps-nav__name {
+    font-family: $headings-font-family;
+    font-weight: 700;
+    font-size: 1.1875rem;
+    color: $ps-navy;
+}
+
+.ps-nav__links {
+    display: flex;
+    gap: 2rem;
+    margin-inline-start: auto;
+    font-size: .9375rem;
+    font-weight: 600;
+
+    a {
+        color: $ps-navy;
+        text-decoration: none;
+
+        &:hover,
+        &:focus { color: $ps-blue-700; text-decoration: underline; }
+    }
+}
+
+.ps-nav__actions {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+
+// -- Hero ---------------------------------------------------------------------
+
+.ps-hero {
+    background: $ps-navy;
+    color: #fff;
+    padding: clamp(2.5rem, 5vw, 4rem) $ps-gutter;
+}
+
+.ps-hero__inner {
+    max-width: $ps-measure;
+    margin-inline: auto;
+    display: flex;
+    align-items: center;
+    gap: clamp(2rem, 4vw, 3.5rem);
+    flex-wrap: wrap;
+}
+
+.ps-hero__copy {
+    flex: 1 1 26rem;
+    max-width: 39rem;
+}
+
+.ps-hero__rule {
+    display: block;
+    width: 120px;
+    height: 4px;
+    border-radius: 2px;
+    background: $ps-signature-x;
+}
+
+.ps-hero__devise {
+    margin: .625rem 0 0;
+    display: flex;
+    gap: .5rem;
+    font-family: $headings-font-family;
+    font-weight: 700;
+    font-size: .9375rem;
+    letter-spacing: .14em;
+
+    .ps-learn   { color: #5BA3FF; }
+    .ps-speak   { color: #F05A8B; }
+    .ps-succeed { color: #F7941D; }
+}
+
+.ps-hero__title {
+    margin: 1.25rem 0 0;
+    font-size: clamp(2.125rem, 4.4vw, 3.25rem);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -.02em;
+    color: #fff;
+}
+
+.ps-hero__lede {
+    margin: 1.125rem 0 0;
+    max-width: 34rem;
+    font-size: 1.125rem;
+    line-height: 1.55;
+    color: $ps-blue-050;
+}
+
+.ps-hero__actions {
+    margin: 1.5rem 0 0;
+    display: flex;
+    gap: .875rem;
+    flex-wrap: wrap;
+
+    .ps-btn {
+        min-height: 52px;
+        padding-inline: 1.625rem;
+        font-size: 1rem;
+        border-radius: 12px;
+    }
+}
+
+.ps-hero__pills {
+    margin: 1.375rem 0 0;
+    display: flex;
+    gap: .625rem;
+    flex-wrap: wrap;
+}
+
+.ps-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: .25rem .875rem;
+    border-radius: 999px;
+    background: $ps-navy-700;
+    font-size: .8125rem;
+    font-weight: 600;
+    color: $ps-blue-050;
+}
+
+// -- The session illustration -------------------------------------------------
+// Not a live session: a picture of one, drawn in CSS so it costs nothing to
+// send. Hidden from assistive technology in the template.
+.ps-demo {
+    flex: 0 1 27.5rem;
+    background: #fff;
+    border-radius: 18px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: .875rem;
+    color: $ps-navy;
+}
+
+.ps-demo__head,
+.ps-demo__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+}
+
+.ps-demo__course {
+    font-weight: 700;
+    font-size: .9375rem;
+}
+
+.ps-demo__live {
+    display: inline-flex;
+    align-items: center;
+    gap: .375rem;
+    height: 26px;
+    padding-inline: .625rem;
+    border-radius: 999px;
+    background: #FCE4EC;
+    font-size: .75rem;
+    font-weight: 700;
+    color: #B01E52;
+}
+
+.ps-demo__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #D6255F;
+}
+
+.ps-demo__tiles {
+    display: flex;
+    gap: .625rem;
+}
+
+.ps-demo__tile {
+    height: 88px;
+    border-radius: 12px;
+    display: flex;
+    align-items: flex-end;
+    padding: .5rem .625rem;
+    font-size: .75rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.ps-demo__tile--teacher { flex: 1 1 auto; background: $ps-blue-900; }
+.ps-demo__tile--you     { flex: 0 0 7.5rem; background: $ps-blue-700; }
+
+.ps-demo__board {
+    position: relative;
+    min-height: 128px;
+    border-radius: 12px;
+    background: $ps-tint;
+    border: 1px solid #DCEBFF;
+    padding: .75rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.ps-demo__phrase {
+    font-family: $headings-font-family;
+    font-weight: 700;
+    font-size: 1rem;
+    color: $ps-blue-900;
+}
+
+.ps-demo__variants {
+    font-size: .8125rem;
+    color: $ps-ink-soft;
+}
+
+.ps-demo__boardlabel {
+    position: absolute;
+    right: .75rem;
+    bottom: .625rem;
+    font-size: .6875rem;
+    font-weight: 600;
+    color: $ps-blue-700;
+}
+
+.ps-demo__timer {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    font-size: .9375rem;
+
+    span { color: $ps-ink-faint; font-weight: 500; }
+}
+
+.ps-demo__join {
+    display: inline-flex;
+    align-items: center;
+    height: 40px;
+    padding-inline: 1.125rem;
+    border-radius: 10px;
+    background: $ps-blue-700;
+    font-size: .875rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+// -- Sections -----------------------------------------------------------------
+
+.ps-section {
+    padding: clamp(2.5rem, 4.5vw, 3.5rem) $ps-gutter;
+}
+
+.ps-section__inner {
+    max-width: $ps-measure;
+    margin-inline: auto;
+}
+
+.ps-section__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    flex-wrap: wrap;
+}
+
+.ps-section__title {
+    margin: 0;
+    font-size: clamp(1.625rem, 2.6vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -.015em;
+}
+
+.ps-section__lede {
+    margin: .375rem 0 0;
+    font-size: .9375rem;
+    color: $ps-ink-soft;
+}
+
+.ps-section__more {
+    font-weight: 700;
+    font-size: .9375rem;
+}
+
+.ps-empty {
+    margin: 1.5rem 0 0;
+    color: $ps-ink-soft;
+}
+
+// -- Catalogue ----------------------------------------------------------------
+
+.ps-cathead {
+    background: $ps-blue-050;
+    padding: clamp(2rem, 3.5vw, 2.5rem) $ps-gutter;
+}
+
+.ps-cathead__inner {
+    max-width: $ps-measure;
+    margin-inline: auto;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem 2.5rem;
+    flex-wrap: wrap;
+}
+
+.ps-cathead__title {
+    margin: 0;
+    font-size: clamp(1.875rem, 3.2vw, 2.125rem);
+    font-weight: 800;
+    letter-spacing: -.02em;
+}
+
+.ps-cathead__lede {
+    margin: .375rem 0 0;
+    font-size: .9375rem;
+    color: #22366B;
+}
+
+.ps-search {
+    display: flex;
+    gap: .625rem;
+    flex: 1 1 22rem;
+    max-width: 34rem;
+}
+
+// Visible, not a placeholder standing in for a label. A placeholder vanishes
+// the moment someone types, and disappears entirely in a screen reader's forms
+// list.
+.ps-search__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.ps-search__input {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 52px;
+    padding: .5rem 1.125rem;
+    border: 1px solid #DCEBFF;
+    border-radius: 12px;
+    background: #fff;
+    font-size: .9375rem;
+    color: $ps-navy;
+
+    &:focus {
+        outline: 0;
+        border-color: $ps-blue-700;
+        box-shadow: 0 0 0 3px rgba($ps-blue-700, .18);
+    }
+}
+
+.ps-search .ps-btn {
+    min-height: 52px;
+    padding-inline: 1.625rem;
+    border-radius: 12px;
+}
+
+.ps-filters {
+    display: grid;
+    gap: .75rem;
+}
+
+.ps-filters__group {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
+.ps-filters__label {
+    flex: 0 0 5.5rem;
+    font-size: .8125rem;
+    font-weight: 700;
+    color: $ps-ink-soft;
+}
+
+.ps-filters__chips {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+
+// A chip is a LINK to this page with one parameter changed - not a control
+// that needs scripting. That is what keeps a filtered view shareable and the
+// back button honest (AC-20).
+.ps-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: .25rem 1rem;
+    border: 1.5px solid #DCEBFF;
+    border-radius: 999px;
+    background: #fff;
+    font-size: .875rem;
+    font-weight: 600;
+    color: $ps-navy;
+    text-decoration: none;
+
+    &:hover,
+    &:focus {
+        border-color: $ps-blue-300;
+        color: $ps-blue-900;
+        text-decoration: none;
+    }
+}
+
+.ps-chip--on {
+    background: $ps-navy;
+    border-color: $ps-navy;
+    color: #fff;
+
+    &:hover,
+    &:focus { background: $ps-navy-700; border-color: $ps-navy-700; color: #fff; }
+}
+
+.ps-catalogue__count {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: .8125rem;
+    color: $ps-ink-faint;
+}
+
+.ps-catalogue__clear {
+    font-weight: 600;
+}
+
+.ps-catalogue__paging {
+    margin-top: 1.5rem;
+}
+
+// NOTE ON EVERY minmax() BELOW: the floor is written min(100%, …).
+//
+// `minmax(16rem, 1fr)` is a PROMISE that the track will never be narrower than
+// 16rem - so when the viewport is narrower than the sum of the floors, the
+// grid overflows the screen instead of wrapping, and the page gets a
+// horizontal scrollbar. The footer did exactly that at 390px: a 16rem column
+// plus an 11rem column is 432px of floor in a 375px viewport, 109px over.
+//
+// min(100%, 16rem) keeps the intent - do not go below 16rem - while letting
+// the track shrink when there is less than 16rem to be had.
+
+// -- Course cards -------------------------------------------------------------
+
+.ps-course-grid {
+    margin-top: 1.625rem;
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+}
+
+.ps-card {
+    border: 1px solid $ps-line;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #fff;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+
+    &:hover {
+        border-color: $ps-blue-300;
+        box-shadow: 0 12px 28px -18px rgba(10, 26, 64, .55);
+    }
+}
+
+.ps-card__link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+
+    &:hover,
+    &:focus { color: inherit; text-decoration: none; }
+}
+
+// The plate carries the language, because a course here has a teacher and a
+// time rather than a photograph. Four grounds, assigned from the course id.
+.ps-card__plate {
+    position: relative;
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: $headings-font-family;
+    font-weight: 800;
+    font-size: 2.125rem;
+    letter-spacing: .02em;
+}
+
+// The course's own image, when it has one. object-fit means an upload of any
+// shape fills the plate without distorting: a 4:3 photograph and a 16:9 one
+// both crop to the same band rather than squashing to it.
+.ps-card__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    // The tone behind it shows through while the image is still arriving,
+    // which on a slow connection is most of the first screen.
+    background: inherit;
+}
+
+.ps-card--tone1 .ps-card__plate { background: $ps-blue-900; color: $ps-blue-300; }
+.ps-card--tone2 .ps-card__plate { background: $ps-blue-700; color: $ps-blue-050; }
+.ps-card--tone3 .ps-card__plate { background: $ps-blue-500; color: #fff; }
+.ps-card--tone4 .ps-card__plate { background: $ps-navy;     color: #F7941D; }
+
+.ps-card__body {
+    flex: 1;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.ps-card__title {
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.3;
+}
+
+.ps-card__meta {
+    font-size: .8125rem;
+    color: $ps-ink-soft;
+}
+
+.ps-card__price {
+    margin-top: auto;
+    display: flex;
+    align-items: baseline;
+    gap: .5rem;
+}
+
+.ps-price-now {
+    font-family: $headings-font-family;
+    font-weight: 800;
+    font-size: 1.125rem;
+    color: $ps-navy;
+}
+
+.ps-price-now--free { color: $ps-blue-900; }
+
+.ps-price-was {
+    font-size: .875rem;
+    color: $ps-ink-faint;
+    text-decoration: line-through;
+}
+
+.ps-card__cta {
+    font-size: .875rem;
+    font-weight: 700;
+    color: $ps-blue-700;
+}
+
+// -- Course detail ------------------------------------------------------------
+
+.ps-crumbs {
+    padding: 1rem $ps-gutter 0;
+    font-size: .8125rem;
+    color: $ps-ink-faint;
+}
+
+.ps-crumbs__inner {
+    max-width: $ps-measure;
+    margin-inline: auto;
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+
+.ps-crumbs__here {
+    color: $ps-ink-soft;
+}
+
+.ps-coursehead {
+    margin-top: 1rem;
+    padding: clamp(1.75rem, 3.5vw, 2.5rem) $ps-gutter;
+    color: #fff;
+}
+
+.ps-coursehead--tone1 { background: $ps-blue-900; }
+.ps-coursehead--tone2 { background: $ps-blue-700; }
+.ps-coursehead--tone3 { background: $ps-blue-500; }
+.ps-coursehead--tone4 { background: $ps-navy; }
+
+.ps-coursehead__inner {
+    max-width: $ps-measure;
+    margin-inline: auto;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.ps-coursehead__plate {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 84px;
+    height: 84px;
+    flex: none;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, .12);
+    font-family: $headings-font-family;
+    font-weight: 800;
+    font-size: 1.75rem;
+    color: #fff;
+}
+
+.ps-coursehead__badges {
+    margin: 0 0 .5rem;
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+
+.ps-coursehead__title {
+    margin: 0;
+    font-size: clamp(1.75rem, 3.4vw, 2.375rem);
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: -.02em;
+    color: #fff;
+}
+
+.ps-coursehead__meta {
+    margin: .5rem 0 0;
+    font-size: .9375rem;
+    color: $ps-blue-050;
+}
+
+// The price card is a column beside the description on a wide screen and a
+// block under it on a narrow one.
+//
+// It has to be said explicitly: `minmax(min(100%, 17rem), 1fr)` is a FLOOR, not a
+// suggestion. Below about 700px the two tracks stop fitting and the grid
+// overflows the viewport rather than wrapping - a phone got a horizontal
+// scrollbar and a price card half off the screen. Grid does not reflow on its
+// own; a breakpoint is the only thing that reflows it.
+.ps-course__grid {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    grid-template-columns: minmax(0, 1.8fr) minmax(min(100%, 17rem), 1fr);
+    align-items: start;
+}
+
+@media (max-width: 56.25em) {
+    .ps-course__grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    // On a phone the price and the call to action are what the page is for, so
+    // they come first rather than after a summary someone has to scroll past.
+    .ps-course__aside {
+        order: -1;
+    }
+}
+
+.ps-course__h2 {
+    margin: 0 0 .75rem;
+    font-size: 1.25rem;
+    font-weight: 800;
+}
+
+.ps-course__summary {
+    font-size: 1rem;
+    line-height: 1.65;
+    color: $ps-ink-soft;
+}
+
+.ps-pricecard {
+    border: 1px solid $ps-line;
+    border-radius: 16px;
+    padding: 1.25rem;
+    background: #fff;
+    box-shadow: 0 12px 30px -24px rgba(10, 26, 64, .8);
+}
+
+.ps-pricecard__price {
+    margin: 0 0 1rem;
+    display: flex;
+    align-items: baseline;
+    gap: .5rem;
+
+    .ps-price-now { font-size: 1.75rem; }
+}
+
+.ps-pricecard__cta {
+    width: 100%;
+    min-height: 52px;
+    border-radius: 12px;
+    font-size: 1rem;
+}
+
+.ps-pricecard__note {
+    margin: .75rem 0 0;
+    font-size: .8125rem;
+    line-height: 1.5;
+    color: $ps-ink-soft;
+}
+
+.ps-pricecard__list {
+    margin: 1.25rem 0 0;
+    padding-inline-start: 1.125rem;
+    font-size: .875rem;
+    line-height: 1.7;
+    color: $ps-ink-soft;
+}
+
+.ps-pricecard__pay {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid $ps-line;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+
+.ps-pricecard__paylabel {
+    width: 100%;
+    font-size: .8125rem;
+    font-weight: 700;
+    color: $ps-ink-soft;
+}
+
+.ps-paytag {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: .25rem .75rem;
+    border: 1px solid #DCEBFF;
+    border-radius: 8px;
+    background: $ps-tint;
+    font-size: .8125rem;
+    font-weight: 600;
+    color: $ps-navy;
+}
+
+// -- Badges -------------------------------------------------------------------
+// The four seeded styles. Every pairing below clears AA: the gradient's pink
+// cannot carry white text, so the promo badge uses the darker pink ink, and the
+// orange and yellow badges carry navy.
+.ps-badge {
+    position: absolute;
+    top: .625rem;
+    inset-inline-start: .625rem;
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding-inline: .625rem;
+    border-radius: 999px;
+    font-family: $font-family-sans-serif;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .01em;
+}
+
+.ps-badge--promo { background: #D6255F; color: #fff; }
+.ps-badge--hot   { background: #F7941D; color: $ps-navy; }
+.ps-badge--free  { background: $ps-navy; color: #fff; }
+.ps-badge--exam  { background: #FBC02D; color: $ps-navy; }
+
+// On a card the badge is pinned to the corner of the plate. On the course page
+// it sits in a line of its own, so it stops being positioned.
+//
+// This rule has to come AFTER .ps-badge, not with the course styles where it
+// was first written: both are single classes, so the later one wins, and while
+// it sat earlier in the file the badge kept its `position: absolute` and flew
+// to the top-left corner of the page - over the navigation bar.
+.ps-badge--inline {
+    position: static;
+}
+
+// -- How it works -------------------------------------------------------------
+
+.ps-steps {
+    background: $ps-blue-050;
+}
+
+.ps-steps__list {
+    margin: 1.625rem 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+}
+
+.ps-step {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.25rem;
+    display: flex;
+    gap: .875rem;
+}
+
+.ps-step__number {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: $ps-navy;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: $headings-font-family;
+    font-weight: 800;
+}
+
+.ps-step__body {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+}
+
+.ps-step__title { font-weight: 700; }
+
+.ps-step__text {
+    font-size: .875rem;
+    line-height: 1.5;
+    color: $ps-ink-soft;
+}
+
+// -- Built for the network ----------------------------------------------------
+
+.ps-network {
+    background: $ps-navy;
+    color: #fff;
+
+    .ps-section__title { color: #fff; }
+    .ps-section__lede  { color: $ps-blue-050; }
+}
+
+.ps-network__grid {
+    margin-top: 1.625rem;
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+}
+
+.ps-network__card {
+    background: $ps-navy-700;
+    border-radius: 16px;
+    padding: 1.25rem;
+
+    h3 {
+        margin: 0 0 .375rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #fff;
+    }
+
+    p {
+        margin: 0;
+        font-size: .875rem;
+        line-height: 1.5;
+        color: $ps-blue-050;
+    }
+}
+
+// -- App and certificates -----------------------------------------------------
+
+.ps-app__grid {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    align-items: start;
+}
+
+.ps-app__points {
+    margin: 1.25rem 0 0;
+    padding-inline-start: 1.125rem;
+    font-size: .9375rem;
+    line-height: 1.7;
+    color: $ps-ink-soft;
+}
+
+.ps-app__stores {
+    margin: 1.375rem 0 0;
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
+// A store badge that is not a link, because the app ships in S12. Dashed and
+// grey so it reads as a note: nothing here invites a tap that would do nothing.
+.ps-store {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: .5rem 1.125rem;
+    border: 1px dashed #CFE0F5;
+    border-radius: 12px;
+    font-size: .875rem;
+    font-weight: 600;
+    color: $ps-ink-faint;
+}
+
+.ps-app__aside {
+    display: grid;
+    gap: 1rem;
+}
+
+.ps-panel {
+    background: $ps-tint;
+    border-radius: 16px;
+    padding: 1.25rem;
+}
+
+.ps-panel--quiet {
+    background: #fff;
+    border: 1px solid $ps-line;
+}
+
+.ps-panel__flare {
+    display: block;
+    height: 64px;
+    border-radius: 14px;
+    margin-bottom: .875rem;
+    background: linear-gradient(135deg, #E8336F 0%, #F7941D 55%, #FBC02D 100%);
+}
+
+.ps-panel__title {
+    margin: 0 0 .375rem;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.ps-panel__text {
+    margin: 0;
+    font-size: .875rem;
+    line-height: 1.55;
+    color: $ps-ink-soft;
+}
+
+// -- FAQ ----------------------------------------------------------------------
+// <details>, so it opens with no JavaScript at all (AC-20).
+
+.ps-faq__list {
+    margin-top: 1.625rem;
+    display: grid;
+    gap: .75rem;
+}
+
+.ps-faq__item {
+    border: 1px solid $ps-line;
+    border-radius: 12px;
+    padding: .875rem 1.125rem;
+    background: #fff;
+
+    summary {
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 1rem;
+        color: $ps-navy;
+    }
+
+    p {
+        margin: .625rem 0 0;
+        font-size: .9375rem;
+        line-height: 1.6;
+        color: $ps-ink-soft;
+    }
+
+    &[open] {
+        border-color: $ps-blue-050;
+        background: $ps-tint;
+    }
+}
+
+.ps-faq__cta {
+    margin: 1.625rem 0 0;
+}
+
+// -- Footer -------------------------------------------------------------------
+
+.ps-foot {
+    background: $ps-navy;
+    color: #fff;
+    padding: clamp(2.5rem, 4vw, 3.25rem) $ps-gutter 1.5rem;
+}
+
+.ps-foot__inner {
+    max-width: $ps-measure;
+    margin-inline: auto;
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: minmax(min(100%, 16rem), 1.6fr) repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+}
+
+.ps-foot__mark {
+    display: flex;
+    align-items: center;
+    gap: .625rem;
+    text-decoration: none;
+
+    &:hover { text-decoration: none; }
+}
+
+.ps-foot__name {
+    font-family: $headings-font-family;
+    font-weight: 700;
+    font-size: 1.0625rem;
+    color: #fff;
+}
+
+.ps-foot__tagline {
+    margin: .75rem 0 0;
+    display: flex;
+    gap: .375rem;
+    font-family: $headings-font-family;
+    font-size: .8125rem;
+    font-weight: 700;
+
+    .ps-learn   { color: #5BA3FF; }
+    .ps-speak   { color: #F05A8B; }
+    .ps-succeed { color: #F7941D; }
+}
+
+.ps-foot__blurb {
+    margin: .625rem 0 0;
+    max-width: 22rem;
+    font-size: .8125rem;
+    line-height: 1.6;
+    color: #9FB4DF;
+}
+
+.ps-foot__col {
+    display: flex;
+    flex-direction: column;
+    gap: .625rem;
+    font-size: .875rem;
+
+    a {
+        color: $ps-blue-050;
+        text-decoration: none;
+
+        &:hover,
+        &:focus { color: #fff; text-decoration: underline; }
+    }
+}
+
+.ps-foot__heading {
+    margin: 0;
+    font-size: .875rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+// Not a link yet: the pages behind these land with the terms work and with the
+// app. Grey, so each reads as a note rather than something broken.
+.ps-foot__pending {
+    color: $ps-ink-faint;
+}
+
+.ps-foot__base {
+    max-width: $ps-measure;
+    margin: 2rem auto 0;
+    padding-top: 1.125rem;
+    border-top: 1px solid rgba(255, 255, 255, .12);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-size: .8125rem;
+}
+
+.ps-foot__copy {
+    color: #9FB4DF;
+}
+
+// The staff door. Discreet is not the same as hidden: a teacher has to be able
+// to find it, and it clears AA on navy at 7.0:1.
+.ps-foot__staff {
+    color: #5BA3FF;
+
+    &:hover,
+    &:focus { color: #fff; }
+}
+
+// -- Narrow -------------------------------------------------------------------
+
+@media (max-width: 47.9375em) {
+
+    // One column. min(100%, …) lets a single track shrink, but it cannot make
+    // two tracks share 375px when their floors add up to 432 - only a
+    // breakpoint reflows a grid. This is what put a horizontal scrollbar on
+    // every public page at phone width.
+    .ps-foot__inner {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1.5rem;
+    }
+
+    .ps-nav__inner {
+        row-gap: .75rem;
+    }
+
+    // The links move to their own row and stay visible. A hamburger would need
+    // JavaScript to open it, and AC-20 says the page works without any.
+    .ps-nav__links {
+        order: 3;
+        width: 100%;
+        margin-inline-start: 0;
+        gap: 1.25rem;
+        overflow-x: auto;
+        padding-bottom: .25rem;
+    }
+
+    .ps-nav__actions {
+        margin-inline-start: auto;
+    }
+
+    .ps-hero__actions .ps-btn {
+        flex: 1 1 12rem;
+    }
+
+    .ps-demo {
+        flex-basis: 100%;
+    }
+}
+
+// -- The dates a course runs --------------------------------------------------
+// On the public page, because somebody deciding whether to pay is deciding
+// whether they can be there on those evenings.
+
+.ps-course__dates {
+    margin-top: 2rem;
+}
+
+.ps-datelist {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: .625rem;
+}
+
+.ps-dateitem {
+    display: grid;
+    grid-template-columns: minmax(0, 14rem) minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: .25rem 1rem;
+    padding: .75rem .875rem;
+    border-radius: 12px;
+    background: #F7FAFF;
+    border: 1px solid #E4EDFA;
+}
+
+.ps-dateitem__when {
+    font-size: .875rem;
+    font-weight: 700;
+    color: $ps-blue-900;
+}
+
+.ps-dateitem__title {
+    font-size: .9375rem;
+    color: $ps-navy;
+}
+
+.ps-dateitem__meta {
+    font-size: .8125rem;
+    color: #55648C;
+}
+
+// Three columns need room. On a phone the date leads and the rest follows it.
+@media (max-width: 40em) {
+    .ps-dateitem {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

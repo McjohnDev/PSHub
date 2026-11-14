@@ -1,0 +1,156 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_pshub/learn_agenda
+
+    "My diary": every class this learner is expected at, grouped by day.
+
+    WHAT IT DELIBERATELY DOES NOT DO
+    No month grid. A month grid is a desktop idea: on a 360 px screen it gives
+    each day a box too small for the one thing that matters, which is the time
+    and whether you can get in. This is a list, and a list reads the same at
+    360 px and at 1400 px.
+
+    Each row's button comes from the server's verdict, not from the date -
+    see agenda_service. The template never decides whether a door is open.
+
+    Context variables required for this template:
+    * upcomingdays - [{daylabel, dayiso, istoday, sessions}]
+    * hasupcoming - bool
+    * recentdays - same shape, newest first, no buttons
+    * hasrecent - bool
+    * sessions (within a day) - [{title, coursename, starttime, duration,
+          url, courseurl, canjoin, note, islive, isended, state}]
+    * servertime - the time the server believes it is
+    * exporturl - personal iCal URL, or absent
+    * hasexport - bool
+    * catalogueurl - where an empty diary sends somebody
+
+    Example context (json):
+    {
+        "hasupcoming": true,
+        "upcomingdays": [{
+            "daylabel": "Aujourd'hui", "dayiso": "2026-10-11", "istoday": true,
+            "sessions": [{
+                "title": "Séance 3 — au restaurant",
+                "coursename": "Anglais A2 — conversation pratique",
+                "starttime": "17:45", "duration": "50 minutes",
+                "url": "/local/pshub/learn/session.php?id=7",
+                "courseurl": "/local/pshub/learn/course.php?id=9",
+                "canjoin": true, "note": null, "islive": true,
+                "isended": false, "state": "ok"
+            }]
+        }],
+        "hasrecent": false, "recentdays": [],
+        "servertime": "17:46", "hasexport": true,
+        "exporturl": "/calendar/export_execute.php?authtoken=x",
+        "catalogueurl": "/local/pshub/catalogue.php"
+    }
+}}
+<div class="ps-page">
+
+    <h1 class="ps-page__title">{{#str}}agenda_title, local_pshub{{/str}}</h1>
+    <p class="ps-page__lead">{{#str}}agenda_lead, local_pshub{{/str}}</p>
+
+    {{#hasupcoming}}
+        {{#upcomingdays}}
+            <section class="ps-agenda-day {{#istoday}}ps-agenda-day--today{{/istoday}}">
+                <h2 class="ps-agenda-day__label">
+                    <time datetime="{{dayiso}}">{{daylabel}}</time>
+                </h2>
+
+                <ul class="ps-sessions">
+                    {{#sessions}}
+                        <li class="ps-session ps-session--{{state}}">
+                            <span class="ps-session__when">
+                                {{starttime}}
+                                {{#islive}}<span class="ps-session__live">{{#str}}demo_live, theme_pslanguagehub{{/str}}</span>{{/islive}}
+                            </span>
+                            <span class="ps-session__body">
+                                <span class="ps-session__title">{{title}}</span>
+                                <span class="ps-session__meta">
+                                    <a href="{{courseurl}}">{{coursename}}</a> &middot; {{duration}}
+                                </span>
+                                {{#note}}<span class="ps-session__note">{{.}}</span>{{/note}}
+                            </span>
+                            {{#canjoin}}
+                                <a class="ps-btn ps-btn--navy" href="{{url}}">{{#str}}agenda_join, local_pshub{{/str}}</a>
+                            {{/canjoin}}
+                            {{^canjoin}}
+                                <a class="ps-btn ps-btn--outline" href="{{url}}">{{#str}}agenda_details, local_pshub{{/str}}</a>
+                            {{/canjoin}}
+                        </li>
+                    {{/sessions}}
+                </ul>
+            </section>
+        {{/upcomingdays}}
+    {{/hasupcoming}}
+
+    {{^hasupcoming}}
+        {{!
+            An empty diary is the commonest state for somebody who has just
+            signed up, so it has to do something other than report emptiness.
+        }}
+        <div class="ps-empty-card">
+            <p class="ps-empty-card__text">{{#str}}agenda_empty, local_pshub{{/str}}</p>
+            <a class="ps-btn ps-btn--navy" href="{{catalogueurl}}">{{#str}}learn_browse, local_pshub{{/str}}</a>
+        </div>
+    {{/hasupcoming}}
+
+    {{#hasrecent}}
+        <section class="ps-block">
+            <h2 class="ps-block__title">{{#str}}agenda_recent_title, local_pshub{{/str}}</h2>
+            {{#recentdays}}
+                <h3 class="ps-agenda-day__label ps-agenda-day__label--past">
+                    <time datetime="{{dayiso}}">{{daylabel}}</time>
+                </h3>
+                <ul class="ps-sessions ps-sessions--past">
+                    {{#sessions}}
+                        <li class="ps-session ps-session--past">
+                            <span class="ps-session__when">{{starttime}}</span>
+                            <span class="ps-session__body">
+                                <span class="ps-session__title">{{title}}</span>
+                                <span class="ps-session__meta">
+                                    <a href="{{courseurl}}">{{coursename}}</a> &middot; {{duration}}
+                                </span>
+                            </span>
+                        </li>
+                    {{/sessions}}
+                </ul>
+            {{/recentdays}}
+        </section>
+    {{/hasrecent}}
+
+    <footer class="ps-agenda-foot">
+        <p class="ps-agenda-foot__clock">{{#str}}lobby_servertime, local_pshub, {{servertime}}{{/str}}</p>
+
+        {{#hasexport}}
+            {{!
+                The URL carries a token derived from the password hash, so it
+                is a credential. Saying so is part of the feature: a learner
+                who pastes it into a group chat has shared their diary.
+            }}
+            <details class="ps-agenda-export">
+                <summary>{{#str}}agenda_export_summary, local_pshub{{/str}}</summary>
+                <p class="ps-agenda-export__help">{{#str}}agenda_export_help, local_pshub{{/str}}</p>
+                <p class="ps-agenda-export__warn">{{#str}}agenda_export_warning, local_pshub{{/str}}</p>
+                <a class="ps-btn ps-btn--outline" href="{{exporturl}}" rel="nofollow">{{#str}}agenda_export_link, local_pshub{{/str}}</a>
+            </details>
+        {{/hasexport}}
+    </footer>
+
+</div>

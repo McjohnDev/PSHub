@@ -1,0 +1,177 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_pshub/admin_overview
+
+    The administration console: what is waiting for a decision, and what exists.
+
+    WHAT THE APPROVED SCREEN SHOWS THAT THIS DOES NOT
+    A revenue figure with a month-on-month change, and a payments-to-validate
+    queue with Validate buttons. Not one transaction has ever been recorded, so
+    both would be furniture: the money card appears with the first payment, and
+    the buttons with the validation flow in sprint 7.
+
+    Approve and Reject lead to a confirmation page, never to an immediate
+    change: a decision that publishes a course to the public catalogue is not
+    something to take by mis-clicking a link in a list. Both transitions go
+    through review_service, which writes the audit row in the same database
+    transaction as the change.
+
+    Context variables required for this template:
+    * published, pending, draft, teachers, learners - the figures.
+    * queue - [{fullname, langplate, cardtone, url, submitter, hassubmitter,
+                submitted, hassubmitted}]
+    * hasqueue - bool
+    * hasmoney, money - {validated, pending, pendingamount} or nothing.
+    * fakepayments - true when this site's payments are scripted, not real.
+    * types - [{label, style}], hastypes, typesurl
+
+    Example context (json):
+    {
+        "published": 4, "pending": 1, "draft": 0,
+        "teachers": 1, "learners": 2,
+        "queue": [], "hasqueue": false,
+        "hasmoney": false,
+        "types": [{"label": "HOT", "style": "hot"}], "hastypes": true,
+        "typesurl": "/local/pshub/admin/coursetypes.php"
+    }
+}}
+<div class="ps-page">
+
+    {{#fakepayments}}
+        {{!
+            Loud on purpose. A site taking scripted payments must not look like
+            a site taking real ones.
+        }}
+        <p class="ps-fakebanner" role="alert">{{#str}}fakepayments_banner, local_pshub{{/str}}</p>
+    {{/fakepayments}}
+
+    <div class="ps-page__head">
+        <h1 class="ps-page__title">{{#str}}admin_title, local_pshub{{/str}}</h1>
+        <p class="ps-page__lede">{{#str}}admin_lede, local_pshub{{/str}}</p>
+    </div>
+
+    <div class="ps-tiles">
+        <div class="ps-tile ps-tile--xp">
+            <span class="ps-tile__value">{{pending}}</span>
+            <span class="ps-tile__label">{{#str}}admin_tile_pending, local_pshub{{/str}}</span>
+        </div>
+        <div class="ps-tile">
+            <span class="ps-tile__value">{{published}}</span>
+            <span class="ps-tile__label">{{#str}}admin_tile_published, local_pshub{{/str}}</span>
+        </div>
+        <div class="ps-tile ps-tile--live">
+            <span class="ps-tile__value">{{learners}}</span>
+            <span class="ps-tile__label">{{#str}}admin_tile_learners, local_pshub{{/str}}</span>
+        </div>
+        <div class="ps-tile">
+            <span class="ps-tile__value">{{teachers}}</span>
+            <span class="ps-tile__label">{{#str}}admin_tile_teachers, local_pshub{{/str}}</span>
+        </div>
+    </div>
+
+    <div class="ps-console">
+
+        <div class="ps-console__main">
+
+            <section class="ps-side-card">
+                <h2 class="ps-side-card__title">{{#str}}admin_queue_title, local_pshub{{/str}}</h2>
+
+                {{#hasqueue}}
+                    <ul class="ps-rows">
+                        {{#queue}}
+                            <li class="ps-row ps-row--tone{{cardtone}}">
+                                <span class="ps-row__plate" aria-hidden="true">{{langplate}}</span>
+                                <span class="ps-row__body">
+                                    <span class="ps-row__title">{{fullname}}</span>
+                                    {{!
+                                        A course seeded before the submission
+                                        flow existed has neither a submitter nor
+                                        a date. An empty line under the title is
+                                        worse than no line.
+                                    }}
+                                    {{#hasmeta}}
+                                        <span class="ps-row__meta">
+                                            {{#hassubmitter}}{{submitter}}{{/hassubmitter}}{{#hassubmitted}}{{#hassubmitter}} · {{/hassubmitter}}{{submitted}}{{/hassubmitted}}
+                                        </span>
+                                    {{/hasmeta}}
+                                </span>
+                                <span class="ps-row__end">
+                                    <a class="ps-row__link" href="{{url}}">{{#str}}admin_review, local_pshub{{/str}}</a>
+                                    {{!
+                                        Both lead to a confirmation, and the
+                                        rejection to the reason it needs: no
+                                        course changes state on one click.
+                                    }}
+                                    <a class="ps-btn ps-btn--navy ps-btn--small" href="{{approveurl}}">{{#str}}review_approve, local_pshub{{/str}}</a>
+                                    <a class="ps-btn ps-btn--outline ps-btn--small" href="{{rejecturl}}">{{#str}}review_reject, local_pshub{{/str}}</a>
+                                </span>
+                            </li>
+                        {{/queue}}
+                    </ul>
+                    <p class="ps-side-card__note">{{#str}}admin_queue_audited, local_pshub{{/str}}</p>
+                {{/hasqueue}}
+                {{^hasqueue}}
+                    <p class="ps-side-card__note">{{#str}}admin_queue_empty, local_pshub{{/str}}</p>
+                {{/hasqueue}}
+            </section>
+
+            {{#hastypes}}
+                <section class="ps-side-card">
+                    <div class="ps-block__head">
+                        <h2 class="ps-side-card__title">{{#str}}admin_types_title, local_pshub{{/str}}</h2>
+                        <a class="ps-block__more" href="{{typesurl}}">{{#str}}admin_types_manage, local_pshub{{/str}}</a>
+                    </div>
+                    <div class="ps-coursepage__badges">
+                        {{#types}}
+                            <span class="ps-badge ps-badge--{{style}}">{{label}}</span>
+                        {{/types}}
+                    </div>
+                </section>
+            {{/hastypes}}
+
+        </div>
+
+        <aside class="ps-console__aside">
+
+            <section class="ps-side-card">
+                <h2 class="ps-side-card__title">{{#str}}admin_money_title, local_pshub{{/str}}</h2>
+
+                {{#hasmoney}}
+                    <p class="ps-progress__legend">
+                        <strong>{{money.validated}}</strong>
+                        <span>{{#str}}admin_money_validated, local_pshub{{/str}}</span>
+                    </p>
+                    <p class="ps-side-card__note">
+                        {{#str}}admin_money_pending, local_pshub, {{money.pending}}{{/str}} · {{money.pendingamount}}
+                    </p>
+                {{/hasmoney}}
+                {{^hasmoney}}
+                    <p class="ps-side-card__note">{{#str}}admin_money_none, local_pshub{{/str}}</p>
+                {{/hasmoney}}
+            </section>
+
+            <p class="ps-note">{{#str}}admin_note_access, local_pshub{{/str}}</p>
+            {{#draft}}
+                <p class="ps-note ps-note--warn">{{#str}}admin_note_drafts, local_pshub, {{draft}}{{/str}}</p>
+            {{/draft}}
+
+        </aside>
+
+    </div>
+
+</div>

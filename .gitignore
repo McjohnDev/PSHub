@@ -1,0 +1,28 @@
+# Build output and caches
+node_modules/
+vendor/
+*.log
+
+# Editor and OS debris
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+*~
+*.swp
+
+# Temporary files from scripts and harnesses
+*.tmp
+*.bak
+*.orig
+*.restored
+
+# Nothing from Moodle itself belongs here. This repository holds only the code
+# written for PS Language Hub; Moodle is upstream and is cloned separately.
+# See README.md for how the two fit together.
+moodle/public/
+moodle/config.php
+
+# Moodledata never goes near a repository: it holds uploaded files, session
+# data and caches, and on a real site it holds learners' work.
+moodledata/

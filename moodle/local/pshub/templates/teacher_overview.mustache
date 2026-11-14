@@ -1,0 +1,184 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_pshub/teacher_overview
+
+    The teacher's console: their courses and where each one stands.
+
+    WHAT THE APPROVED SCREEN SHOWS THAT THIS DOES NOT
+    A fourth tile with an average rating, and a rating column in the course
+    list. Nothing on this platform records a review, so both would be made up -
+    and an invented 4,8 standing beside real learner counts makes those look
+    invented too. They appear when reviews do.
+
+    Context variables required for this template:
+    * greeting - "Bonjour, Adèle".
+    * published, pending, learners - the three tiles.
+    * courses - [{courseid, fullname, statuslabel, status, langplate, cardtone,
+                  learners, url, hascomment, reviewcomment, cansubmit, submiturl}]
+    * hascourses, cancreate, createurl
+    * sessions - [{title, coursename, when, duration, islive}]
+    * hassessions
+    * briefs - [{coursename, hascourse, brief, when}]
+    * hasbriefs
+
+    Example context (json):
+    {
+        "greeting": "Bonjour, Adèle",
+        "published": 1, "pending": 0, "learners": 24,
+        "courses": [], "hascourses": false,
+        "cancreate": false, "createurl": "",
+        "sessions": [], "hassessions": false,
+        "briefs": [], "hasbriefs": false
+    }
+}}
+<div class="ps-page">
+
+    <div class="ps-page__head">
+        <h1 class="ps-page__title">{{greeting}}</h1>
+        <p class="ps-page__lede">{{#str}}teacher_lede, local_pshub{{/str}}</p>
+    </div>
+
+    <div class="ps-tiles">
+        <div class="ps-tile">
+            <span class="ps-tile__value">{{published}}</span>
+            <span class="ps-tile__label">{{#str}}teacher_tile_published, local_pshub{{/str}}</span>
+        </div>
+        <div class="ps-tile ps-tile--xp">
+            <span class="ps-tile__value">{{pending}}</span>
+            <span class="ps-tile__label">{{#str}}teacher_tile_pending, local_pshub{{/str}}</span>
+        </div>
+        <div class="ps-tile ps-tile--live">
+            <span class="ps-tile__value">{{learners}}</span>
+            <span class="ps-tile__label">{{#str}}teacher_tile_learners, local_pshub{{/str}}</span>
+        </div>
+    </div>
+
+    <div class="ps-console">
+
+        <div class="ps-console__main">
+
+            <section class="ps-side-card">
+                <div class="ps-block__head">
+                    <h2 class="ps-side-card__title">{{#str}}teacher_courses_title, local_pshub{{/str}}</h2>
+                    {{#cancreate}}
+                        <a class="ps-block__more" href="{{createurl}}">{{#str}}teacher_create, local_pshub{{/str}}</a>
+                    {{/cancreate}}
+                </div>
+
+                {{#hascourses}}
+                    <ul class="ps-rows">
+                        {{#courses}}
+                            <li class="ps-row ps-row--tone{{cardtone}}">
+                                <span class="ps-row__plate" aria-hidden="true">{{langplate}}</span>
+                                <span class="ps-row__body">
+                                    <span class="ps-row__title">{{fullname}}</span>
+                                    <span class="ps-row__meta">{{learnerlabel}}</span>
+                                    {{#hascomment}}
+                                        {{!
+                                            A rejection without its reason is a
+                                            closed door. The comment is required
+                                            on reject, so it is always here to
+                                            show when the status is rejected.
+                                        }}
+                                        <span class="ps-row__meta">{{reviewcomment}}</span>
+                                    {{/hascomment}}
+                                </span>
+                                <span class="ps-row__end">
+                                    <span class="ps-status ps-status--{{status}}">{{statuslabel}}</span>
+                                    <a class="ps-row__link" href="{{sessionsurl}}">{{#str}}teacher_sessions_link, local_pshub{{/str}}</a>
+                                    {{#canedit}}
+                                        <a class="ps-row__link" href="{{editurl}}">{{#str}}teacher_edit, local_pshub{{/str}}</a>
+                                    {{/canedit}}
+                                    {{#cansubmit}}
+                                        <a class="ps-btn ps-btn--navy ps-btn--small" href="{{submiturl}}">{{#str}}review_submit, local_pshub{{/str}}</a>
+                                    {{/cansubmit}}
+                                    <a class="ps-row__link" href="{{url}}">{{#str}}teacher_open, local_pshub{{/str}}</a>
+                                </span>
+                            </li>
+                        {{/courses}}
+                    </ul>
+                {{/hascourses}}
+                {{^hascourses}}
+                    <div class="ps-empty-card">
+                        <p class="ps-empty-card__text">{{#str}}teacher_no_courses, local_pshub{{/str}}</p>
+                        {{#cancreate}}
+                            <a class="ps-btn ps-btn--navy" href="{{createurl}}">{{#str}}teacher_create, local_pshub{{/str}}</a>
+                        {{/cancreate}}
+                    </div>
+                {{/hascourses}}
+            </section>
+
+            {{#hasbriefs}}
+                <section class="ps-side-card">
+                    <h2 class="ps-side-card__title">{{#str}}teacher_briefs_title, local_pshub{{/str}}</h2>
+                    <ul class="ps-rows">
+                        {{#briefs}}
+                            <li class="ps-row">
+                                <span class="ps-row__plate" aria-hidden="true">PS</span>
+                                <span class="ps-row__body">
+                                    {{#hascourse}}<span class="ps-row__title">{{coursename}}</span>{{/hascourse}}
+                                    <span class="ps-row__meta">{{brief}}</span>
+                                    {{#when}}<span class="ps-row__meta">{{when}}</span>{{/when}}
+                                </span>
+                                <span class="ps-row__end"></span>
+                            </li>
+                        {{/briefs}}
+                    </ul>
+                </section>
+            {{/hasbriefs}}
+
+        </div>
+
+        <aside class="ps-console__aside">
+
+            <section class="ps-side-card">
+                <h2 class="ps-side-card__title">{{#str}}teacher_sessions_title, local_pshub{{/str}}</h2>
+
+                {{#hassessions}}
+                    <ul class="ps-sessionlist">
+                        {{#sessions}}
+                            <li class="ps-sessionrow {{#islive}}ps-sessionrow--live{{/islive}}">
+                                <span class="ps-sessionrow__mark" aria-hidden="true"></span>
+                                <span class="ps-sessionrow__body">
+                                    <span class="ps-sessionrow__title">{{title}}</span>
+                                    <span class="ps-sessionrow__meta">{{coursename}} · {{when}} · {{duration}}</span>
+                                </span>
+                                <span class="ps-sessionrow__state">
+                                    {{#islive}}{{#str}}learn_live_now, local_pshub{{/str}}{{/islive}}
+                                </span>
+                            </li>
+                        {{/sessions}}
+                    </ul>
+                {{/hassessions}}
+                {{^hassessions}}
+                    <p class="ps-side-card__note">{{#str}}teacher_no_sessions, local_pshub{{/str}}</p>
+                {{/hassessions}}
+            </section>
+
+            {{!
+                Two rules a teacher is held to, stated where they work rather
+                than in a document they were sent once.
+            }}
+            <p class="ps-note">{{#str}}teacher_note_reminders, local_pshub{{/str}}</p>
+            <p class="ps-note ps-note--warn">{{#str}}teacher_note_brief, local_pshub{{/str}}</p>
+
+        </aside>
+
+    </div>
+
+</div>

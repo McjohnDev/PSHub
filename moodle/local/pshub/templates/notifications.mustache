@@ -1,0 +1,125 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_pshub/notifications
+
+    "My notifications": one sentence per thing that happens, and tick boxes
+    for where it should reach you.
+
+    WHY IT IS A PLAIN FORM
+    No JavaScript, no autosave. A learner on 2G who ticks a box and watches
+    nothing happen has no way to tell a slow save from a lost one, so there is
+    a button and an answer (AC-20).
+
+    The account-level switch is printed FIRST and, when it is on, the rest is
+    shown greyed with a sentence saying why - rather than showing ticked boxes
+    that cannot take effect.
+
+    Context variables required for this template:
+    * formaction, sesskey
+    * saved - bool, show the "saved" notice
+    * settings - [{provider, title, description, essential,
+          channels: [{name, label, field, checked}]}]
+    * hassettings - bool
+    * silenced - bool, the account-level "tell me nothing"
+    * email - where e-mail would go, so it can be checked at a glance
+
+    Example context (json):
+    {
+        "formaction": "/local/pshub/notifications.php", "sesskey": "abc123",
+        "saved": false, "hassettings": true, "silenced": false,
+        "email": "amina@pshub.local",
+        "settings": [{
+            "provider": "sessionreminder",
+            "title": "Avant chaque séance en direct",
+            "description": "Un rappel la veille, une heure avant, puis dix minutes avant.",
+            "essential": true,
+            "channels": [
+                {"name": "popup", "label": "Dans l'application",
+                 "field": "pref_sessionreminder_popup", "checked": true},
+                {"name": "email", "label": "Par courriel",
+                 "field": "pref_sessionreminder_email", "checked": true}
+            ]
+        }]
+    }
+}}
+<div class="ps-page ps-page--narrow">
+
+    <h1 class="ps-page__title">{{#str}}notif_title, local_pshub{{/str}}</h1>
+    <p class="ps-page__lead">{{#str}}notif_lead, local_pshub{{/str}}</p>
+
+    {{#saved}}
+        <p class="ps-note ps-note--ok" role="status">{{#str}}notif_saved, local_pshub{{/str}}</p>
+    {{/saved}}
+
+    <form class="ps-notifform" method="post" action="{{formaction}}">
+        <input type="hidden" name="sesskey" value="{{sesskey}}">
+        <input type="hidden" name="save" value="1">
+
+        <fieldset class="ps-notifform__all">
+            <legend class="ps-notifform__legend">{{#str}}notif_all_legend, local_pshub{{/str}}</legend>
+            <label class="ps-check">
+                <input type="checkbox" name="silenced" value="1" {{#silenced}}checked{{/silenced}}>
+                <span>{{#str}}notif_all_off, local_pshub{{/str}}</span>
+            </label>
+            <p class="ps-notifform__help">{{#str}}notif_all_help, local_pshub{{/str}}</p>
+        </fieldset>
+
+        {{#hassettings}}
+            <div class="ps-notifform__list {{#silenced}}ps-notifform__list--off{{/silenced}}">
+                {{#silenced}}
+                    <p class="ps-note ps-note--warn">{{#str}}notif_all_on_notice, local_pshub{{/str}}</p>
+                {{/silenced}}
+
+                {{#settings}}
+                    <fieldset class="ps-notifrow">
+                        <legend class="ps-notifrow__title">
+                            {{title}}
+                            {{#essential}}<span class="ps-notifrow__flag">{{#str}}notif_recommended, local_pshub{{/str}}</span>{{/essential}}
+                        </legend>
+                        <p class="ps-notifrow__desc">{{description}}</p>
+                        <div class="ps-notifrow__channels">
+                            {{#channels}}
+                                <label class="ps-check">
+                                    <input type="checkbox" name="{{field}}" value="1" {{#checked}}checked{{/checked}}>
+                                    <span>{{label}}</span>
+                                </label>
+                            {{/channels}}
+                        </div>
+                    </fieldset>
+                {{/settings}}
+            </div>
+        {{/hassettings}}
+
+        {{^hassettings}}
+            {{!
+                Possible: a site with every message processor switched off.
+                Saying so beats an empty form with a save button.
+            }}
+            <div class="ps-empty-card">
+                <p class="ps-empty-card__text">{{#str}}notif_none, local_pshub{{/str}}</p>
+            </div>
+        {{/hassettings}}
+
+        <p class="ps-notifform__email">{{#str}}notif_email_goes_to, local_pshub, {{email}}{{/str}}</p>
+
+        <button class="ps-btn ps-btn--navy" type="submit">{{#str}}notif_save, local_pshub{{/str}}</button>
+    </form>
+
+    <p class="ps-notifform__scope">{{#str}}notif_scope, local_pshub{{/str}}</p>
+
+</div>

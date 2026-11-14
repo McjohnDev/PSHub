@@ -1,0 +1,130 @@
+// PS Language Hub - brand variables.
+//
+// Injected before Bootstrap compiles, so its own components come out in brand
+// colours rather than being repainted afterwards.
+//
+// THE RULE THIS PALETTE IS ORGANISED AROUND
+// -----------------------------------------
+// The brand ships a navy, a four-stop gradient and four blues. Used freely
+// that is three accents competing. They have jobs instead, and the jobs never
+// swap:
+//
+//   navy      structure   ground, chrome, primary action, body text
+//   blue      interaction links, focus rings, progress, secondary action
+//   gradient  LIVE        a session running or about to
+//
+// The gradient marks a class that is happening and nothing else. On the login
+// page it appears exactly once, as a 3px hairline at the very top where it
+// reads as brand rather than status.
+//
+// CONTRAST
+// --------
+// The pink stop cannot carry text: white on #E8336F is 4.4:1 and navy on it
+// 3.6:1, both under AA at body size. So the gradient is never a background for
+// type. Where a gradient must carry a label - the live join button, later - it
+// uses the orange-to-yellow half with navy ink, which holds 5.8:1.
+
+// -- Brand primitives ---------------------------------------------------------
+$ps-navy:       #0A1A40;
+$ps-navy-700:   #142A5E;
+$ps-navy-500:   #1E3A78;
+
+$ps-pink:       #E8336F;
+$ps-orange:     #F7941D;
+$ps-yellow:     #FBC02D;
+
+$ps-blue-900:   #0B3FA0;
+$ps-blue-700:   #1F6FE0;
+$ps-blue-500:   #2E8BFF;
+$ps-blue-300:   #5BA3FF;
+$ps-blue-050:   #CFE2FF;
+
+// Darkened brand inks, so brand colour can appear as type at AA.
+$ps-pink-ink:   #B01B53;
+$ps-orange-ink: #8A5206;
+
+// -- Bootstrap overrides ------------------------------------------------------
+
+// Primary is navy, not blue. The primary action on this platform is a
+// commitment - sign in, enrol, submit - and navy carries that weight. Blue is
+// reserved for interaction affordances so the two never compete.
+$primary:       $ps-navy;
+$secondary:     $ps-blue-700;
+$info:          $ps-blue-700;
+$warning:       $ps-orange;
+$danger:        $ps-pink-ink;
+
+$body-color:    $ps-navy;
+$link-color:    $ps-blue-700;
+$link-hover-color: $ps-blue-900;
+
+// Focus is an interaction affordance, so it is blue even on navy buttons.
+$focus-ring-color:  rgba($ps-blue-700, .35);
+$focus-ring-width:  3px;
+
+// Shape lock: controls 10px, cards 14px, pills only for badges. Documented so
+// it is a system rather than a mix.
+$border-radius:     .625rem;
+$border-radius-sm:  .5rem;
+$border-radius-lg:  .875rem;
+$border-radius-pill: 999px;
+
+$border-color:  #DCE5F4;
+
+// -- Type ---------------------------------------------------------------------
+//
+// Two faces, from the approved screen designs: Bricolage Grotesque carries
+// every heading and button, Instrument Sans every line of running text.
+//
+// This replaces an earlier trade - display face only, body on the system
+// stack - which kept the download at 32 KB but meant the body text was a
+// different typeface on every device, and none of them the one the design was
+// drawn in. The design was approved as a whole, so the pairing comes with it.
+//
+// WHAT IT COSTS AND WHY IT IS ACCEPTABLE ON 2G
+// 71 KB for both, once, then cached for every later page. `font-display: swap`
+// means text is painted immediately in the fallback and never blocks, so the
+// page is READABLE at the same moment it would have been without them. The
+// budget §13.2 actually defends is JavaScript (< 50 KB/page) and time to
+// usable on 3G; a swapped webfont spends neither.
+//
+// Both are SELF-HOSTED, for two reasons. Practically, scssphp resolves
+// `@import url(...)` as a local file and fails the whole compile when it
+// cannot find one, silently falling back to Boost's precompiled CSS. More
+// importantly, a Google Fonts request puts a third-party DNS lookup, TLS
+// handshake and fetch on the critical path of a product whose users are on
+// 2G - exactly the dependency §5.5 exists to avoid.
+//
+// One file each: both are VARIABLE fonts, so a single file serves the whole
+// weight range, and the latin subset (U+0000-00FF) carries every accent
+// French needs, including the typographic apostrophe Moodle's French pack
+// uses in "nom d'utilisateur".
+@font-face {
+    font-family: 'Bricolage Grotesque';
+    font-style: normal;
+    font-weight: 400 800;
+    font-display: swap;
+    src: url('[[font:theme|bricolage-grotesque-latin.woff2]]') format('woff2');
+}
+
+@font-face {
+    font-family: 'Instrument Sans';
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url('[[font:theme|instrument-sans-latin.woff2]]') format('woff2');
+}
+
+$font-family-sans-serif: "Instrument Sans", system-ui, -apple-system, "Segoe UI",
+                         Roboto, "Helvetica Neue", Arial, sans-serif;
+$headings-font-family:   "Bricolage Grotesque", system-ui, sans-serif;
+$headings-font-weight:   800;
+$headings-color:         $ps-navy;
+
+// Boost's own login variable. Set here rather than repainted afterwards, so
+// the field background Boost writes into `.login-container .login-form` is
+// already the right one and there is nothing to override.
+$login-input-bg: #F4F7FC;
+
+$input-btn-focus-width: 3px;
+$btn-font-weight:       600;

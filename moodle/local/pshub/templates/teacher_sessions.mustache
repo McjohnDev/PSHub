@@ -1,0 +1,121 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_pshub/teacher_sessions
+
+    A course's diary of live sessions, and the form that adds to it.
+
+    Cancelling is a POST form, not a link: a class learners were told about is
+    not called off by following something. Nothing here needs scripting.
+
+    Context variables required for this template:
+    * coursename, backurl
+    * isediting - whether the form is editing rather than adding.
+    * formhtml - the rendered moodleform.
+    * upcoming, past - [{id, title, when, duration, iscancelled, ismovable,
+                         editurl, cancelurl, actionurl, sesskey}]
+    * hasupcoming, haspast - bool
+
+    Example context (json):
+    {
+        "coursename": "Anglais B1", "backurl": "/local/pshub/teacher/index.php",
+        "isediting": false, "formhtml": "<form></form>",
+        "upcoming": [], "hasupcoming": false,
+        "past": [], "haspast": false
+    }
+}}
+<div class="ps-page ps-page--narrow">
+
+    <nav class="ps-crumb" aria-label="{{coursename}}">
+        <a class="ps-crumb__link" href="{{backurl}}">{{#str}}teacher_courses_title, local_pshub{{/str}}</a>
+        <span class="ps-crumb__sep" aria-hidden="true">/</span>
+        <span class="ps-crumb__here">{{coursename}}</span>
+    </nav>
+
+    <div class="ps-page__head">
+        <h1 class="ps-page__title">{{#str}}sessions_title, local_pshub{{/str}}</h1>
+        <p class="ps-page__lede">{{#str}}sessions_lede, local_pshub{{/str}}</p>
+    </div>
+
+    <section class="ps-side-card">
+        <h2 class="ps-side-card__title">
+            {{#isediting}}{{#str}}sessions_edit, local_pshub{{/str}}{{/isediting}}
+            {{^isediting}}{{#str}}sessions_add, local_pshub{{/str}}{{/isediting}}
+        </h2>
+        {{{formhtml}}}
+    </section>
+
+    <section class="ps-side-card">
+        <h2 class="ps-side-card__title">{{#str}}sessions_upcoming, local_pshub{{/str}}</h2>
+
+        {{#hasupcoming}}
+            <ul class="ps-rows">
+                {{#upcoming}}
+                    <li class="ps-row">
+                        <span class="ps-row__plate" aria-hidden="true">{{#str}}sessions_plate, local_pshub{{/str}}</span>
+                        <span class="ps-row__body">
+                            <span class="ps-row__title">{{title}}</span>
+                            <span class="ps-row__meta">{{when}} · {{duration}}</span>
+                        </span>
+                        <span class="ps-row__end">
+                            {{#ismovable}}
+                                <a class="ps-row__link" href="{{editurl}}">{{#str}}sessions_move, local_pshub{{/str}}</a>
+                                <form method="post" action="{{actionurl}}">
+                                    <input type="hidden" name="sesskey" value="{{sesskey}}">
+                                    <input type="hidden" name="id" value="{{id}}">
+                                    <input type="hidden" name="action" value="cancel">
+                                    <button class="ps-btn ps-btn--small ps-btn--quiet" type="submit">
+                                        {{#str}}sessions_cancel, local_pshub{{/str}}
+                                    </button>
+                                </form>
+                            {{/ismovable}}
+                        </span>
+                    </li>
+                {{/upcoming}}
+            </ul>
+        {{/hasupcoming}}
+        {{^hasupcoming}}
+            {{!
+                The emptiest this list can be is also the most important thing
+                it can say: a course with no date is a course nobody can take.
+            }}
+            <p class="ps-side-card__note">{{#str}}sessions_none, local_pshub{{/str}}</p>
+        {{/hasupcoming}}
+    </section>
+
+    {{#haspast}}
+        <section class="ps-side-card">
+            <h2 class="ps-side-card__title">{{#str}}sessions_past, local_pshub{{/str}}</h2>
+            <ul class="ps-rows">
+                {{#past}}
+                    <li class="ps-row">
+                        <span class="ps-row__plate" aria-hidden="true">{{#str}}sessions_plate, local_pshub{{/str}}</span>
+                        <span class="ps-row__body">
+                            <span class="ps-row__title">{{title}}</span>
+                            <span class="ps-row__meta">
+                                {{when}} · {{duration}}
+                                {{#iscancelled}} · {{#str}}sessions_was_cancelled, local_pshub{{/str}}{{/iscancelled}}
+                            </span>
+                        </span>
+                        <span class="ps-row__end"></span>
+                    </li>
+                {{/past}}
+            </ul>
+        </section>
+    {{/haspast}}
+
+</div>

@@ -1,0 +1,26 @@
+# Normalise line endings. PHP, Moodle and Flutter tooling all expect LF, and this
+# keeps diffs clean when the repo is cloned on Linux or macOS.
+* text=auto eol=lf
+
+# Windows-first tooling — keep CRLF in the working tree.
+*.ps1   text eol=crlf
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+
+# Binary — never touch, never diff as text.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.pdf   binary
+*.zip   binary
+*.docx  binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.jar   binary
+*.keystore binary
+
+# Generated bundles — collapse in diffs and reviews.
+local/pshub/amd/build/**  linguist-generated=true

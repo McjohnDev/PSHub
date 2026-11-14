@@ -1,0 +1,121 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_pshub/learn_dashboard
+
+    "My progress": what this learner is taking, and what is next.
+
+    WHAT THE APPROVED SCREEN SHOWS THAT THIS DOES NOT
+    A quiz average and a certificate count. Neither is recorded yet - quizzes
+    arrive with the course experience, certificates in S14 - and a dashboard
+    that shows an invented 8/10 is worse than one with three tiles instead of
+    four. The tiles appear when the data does.
+
+    Progress bars are absent for the same reason: progress is sessions
+    attended out of sessions scheduled, and sessions land in S5.
+
+    Context variables required for this template:
+    * greeting - "Bonjour, Amina".
+    * coursecount, sessioncount, xp - the three tiles.
+    * courses - card contexts, see catalogue_service::present().
+    * hascourses - bool
+    * sessions - [{title, coursename, when, duration, islive, url}]
+    * hassessions - bool
+    * catalogueurl - where an empty state sends someone.
+
+    Example context (json):
+    {
+        "greeting": "Bonjour, Amina",
+        "coursecount": 2, "sessioncount": 0, "xp": 0,
+        "courses": [], "hascourses": false,
+        "sessions": [], "hassessions": false,
+        "catalogueurl": "/local/pshub/catalogue.php"
+    }
+}}
+<div class="ps-page">
+
+    <h1 class="ps-page__title">{{greeting}}</h1>
+
+    <div class="ps-tiles">
+        <div class="ps-tile">
+            <span class="ps-tile__value">{{coursecount}}</span>
+            <span class="ps-tile__label">{{#str}}learn_tile_courses, local_pshub{{/str}}</span>
+        </div>
+        <div class="ps-tile ps-tile--live">
+            <span class="ps-tile__value">{{sessioncount}}</span>
+            <span class="ps-tile__label">{{#str}}learn_tile_sessions, local_pshub{{/str}}</span>
+        </div>
+        <div class="ps-tile ps-tile--xp">
+            <span class="ps-tile__value">{{xp}}</span>
+            <span class="ps-tile__label">{{#str}}learn_tile_xp, local_pshub{{/str}}</span>
+        </div>
+    </div>
+
+    <section class="ps-block">
+        <div class="ps-block__head">
+            <h2 class="ps-block__title">{{#str}}learn_courses_title, local_pshub{{/str}}</h2>
+            <a class="ps-block__more" href="{{catalogueurl}}">{{#str}}learn_find_courses, local_pshub{{/str}}</a>
+        </div>
+
+        {{#hascourses}}
+            <div class="ps-course-grid">
+                {{#courses}}
+                    {{> local_pshub/course_card }}
+                {{/courses}}
+            </div>
+        {{/hascourses}}
+        {{^hascourses}}
+            {{!
+                An empty state that does something. "You are not enrolled in
+                any courses" is what Moodle says and it leaves the person
+                exactly where they were.
+            }}
+            <div class="ps-empty-card">
+                <p class="ps-empty-card__text">{{#str}}learn_no_courses, local_pshub{{/str}}</p>
+                <a class="ps-btn ps-btn--navy" href="{{catalogueurl}}">{{#str}}learn_browse, local_pshub{{/str}}</a>
+            </div>
+        {{/hascourses}}
+    </section>
+
+    <section class="ps-block">
+        <h2 class="ps-block__title">{{#str}}learn_sessions_title, local_pshub{{/str}}</h2>
+
+        {{#hassessions}}
+            <ul class="ps-sessions">
+                {{#sessions}}
+                    <li class="ps-session">
+                        <span class="ps-session__when">
+                            {{when}}
+                            {{#islive}}<span class="ps-session__live">{{#str}}demo_live, theme_pslanguagehub{{/str}}</span>{{/islive}}
+                        </span>
+                        <span class="ps-session__body">
+                            <span class="ps-session__title">{{title}}</span>
+                            <span class="ps-session__meta">{{coursename}} · {{duration}}</span>
+                        </span>
+                        <a class="ps-btn ps-btn--blue" href="{{url}}">{{#str}}learn_open_course, local_pshub{{/str}}</a>
+                    </li>
+                {{/sessions}}
+            </ul>
+        {{/hassessions}}
+        {{^hassessions}}
+            <div class="ps-empty-card">
+                <p class="ps-empty-card__text">{{#str}}learn_no_sessions, local_pshub{{/str}}</p>
+            </div>
+        {{/hassessions}}
+    </section>
+
+</div>
