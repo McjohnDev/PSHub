@@ -726,3 +726,27 @@ schedule it every minute before anything depends on reminders (spec §10.2, AC-6
     restarts it, and the **Mail delivery** site check now answers the question before
     anybody meets it as a trace.
 
+36. **A junction into a plugin repository breaks every entry point.** The obvious cure for
+    "the repository and the live tree are two copies that drift" is to replace the live
+    directories with directory junctions pointing at the repository. It does not work
+    here, and it fails loudly: every page of the plugin returns
+
+    ```
+    Failed opening required 'C:\...\PSHub\moodle\local\pshub/../../config.php'
+    ```
+
+    Every entry point starts `require_once(__DIR__ . '/../../config.php')`. **PHP resolves
+    `__DIR__` through the link to the real path**, so the lookup climbs out of the
+    repository instead of out of the Moodle tree, and there is no `config.php` there.
+    Tried on 2026-11-14 with `mklink /J`; reverted within the minute.
+
+    Two things to know when it happens. **The revert is not enough on its own**: PHP's
+    resolved-path cache keeps serving the error after the real directories are back, and
+    only an Apache restart clears it - which is why the learner pages came back
+    immediately and the catalogue did not. And **keep the originals**: renaming them to
+    `<name>.pre-junction` rather than deleting made the revert a rename.
+
+    What does work is the other direction - the repository *is* the Moodle tree, with
+    Moodle cloned underneath it. Short of that, copy, and say in the README which copy is
+    the working one.
+

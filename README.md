@@ -42,10 +42,20 @@ php admin/cli/upgrade.php --non-interactive
 php admin/cli/purge_caches.php
 ```
 
-> ⚠️ On the development box the live code is at `C:\laragon\www\pshub-moodle\public`,
-> and the copies here were taken from it. **Two copies drift.** If you are working on
-> this, make the Moodle tree point at this repository with directory junctions
-> (`mklink /J`) rather than editing either copy by hand.
+> ⚠️ On the development box the live code is at `C:\laragon\www\pshub-moodle\public`, and the copies here were taken from it.
+> **Two copies drift**, so edit in the Moodle tree and copy into the repository — the
+> repository is the backup and the history, not the working copy.
+>
+> **Do not junction or symlink them.** It is the obvious fix and it does not work:
+> every entry point here does `require_once(__DIR__ . '/../../config.php')`, PHP
+> resolves `__DIR__` through the link to the *real* path, and the lookup lands in this
+> repository where there is no `config.php`. Tried on 2026-11-14; every page of the
+> plugin returned a fatal error, and PHP's resolved-path cache kept returning it for a
+> couple of minutes after the links were removed — an Apache restart clears that.
+>
+> What would work, and is the proper fix, is making this repository the Moodle tree:
+> clone Moodle, then lay these three directories over it. That is what
+> **Installing it over a Moodle 5.3 tree** above describes.
 
 ## Development environment
 
@@ -160,6 +170,11 @@ Not engineering problems — accounts, hardware and one product decision:
 
 One documentation task remains: the **cahier needs amending** to cover the five retained
 features, or the two documents will contradict each other (§18.2, #13).
+
+## Licence
+
+**GPL v3 or later**, as every source file's header already declares — a Moodle plugin
+inherits Moodle's licence. Full text in [LICENSE](LICENSE).
 
 ## Brand assets
 
